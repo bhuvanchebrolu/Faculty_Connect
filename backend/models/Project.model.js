@@ -22,8 +22,8 @@ const projectSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // populated with the User (professor) document
-      required: [true, "A project must belong to a professor"],
+      ref: "User",
+    //   required: [true, "A project must belong to a professor"],
     },
     // How many students can be accepted for this project
     maxStudents: {
@@ -33,7 +33,7 @@ const projectSchema = new mongoose.Schema(
       default: 1,
     },
 
-    // Current count of *approved* applications – maintained via
+    // Current count of *approved* applications
     enrolledCount: {
       type: Number,
       default: 0,
@@ -119,4 +119,5 @@ projectSchema.pre("find", function (next) {
 projectSchema.set("toJSON", { virtuals: true });
 projectSchema.set("toObject", { virtuals: true });
 
-module.exports = mongoose.model("Project", projectSchema);
+const Project=mongoose.model("Project", projectSchema);
+export default Project;

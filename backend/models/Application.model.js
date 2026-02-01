@@ -189,4 +189,5 @@ applicationSchema.virtual("statusLabel").get(function () {
 applicationSchema.set("toJSON", { virtuals: true });
 applicationSchema.set("toObject", { virtuals: true });
 
-module.exports = mongoose.model("Application", applicationSchema);
+const Application = mongoose.model("Application", applicationSchema);
+export default Application;
