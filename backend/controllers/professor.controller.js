@@ -180,6 +180,10 @@ const getAllStudents = asyncHandler(async (req, res) => {
     .select("-password") 
     .sort({ name: 1 }); 
 
+     console.log("DEBUG filter:", filter);
+  console.log("DEBUG count:", students.length);
+  console.log("DEBUG students:", students);
+
   res.status(200).json({
     success: true,
     count: students.length,
