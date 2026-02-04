@@ -6,12 +6,14 @@ const router=express.Router();
 
 import {
     createApplication,
-    getMyApplications
+    getMyApplications,
+    getApplicationById
 } from "../controllers/application.controller.js";
 
 // router.use(authenticate, authorizeRole("student"));
 
-router.post("/",createApplication);
-router.get("/",getMyApplications);
+router.post("/", createApplication);
+router.get("/",  getMyApplications);
+router.get("/:id", getApplicationById);
 
 export default router;

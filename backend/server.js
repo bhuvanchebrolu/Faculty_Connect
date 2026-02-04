@@ -7,11 +7,11 @@ import connectDB from "./config/db.js";
 
 // // routes
 // import authRoutes from "./routes/auth.routes.js";
-// import studentRoutes from "./routes/student.routes.js";
+import studentRoutes from "./routes/student.routes.js";
 import professorRoutes from "./routes/professor.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import applicationRoutes from "./routes/application.routes.js";
-// import adminRoutes from "./routes/admin.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 // error middleware
 import { notFound, errorHandler } from "./middlewares/error.middleware.js";
@@ -49,11 +49,11 @@ app.get("/", (req, res) => {
 });
 
 // app.use("/api/auth", authRoutes);
-// app.use("/api/students", studentRoutes);
+app.use("/api/students", studentRoutes);
 app.use("/api/professors", professorRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/applications", applicationRoutes);
-// app.use("/api/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 
 /* =====================
    Error Handling
