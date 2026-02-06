@@ -1,6 +1,6 @@
-import User from "../models/User.model";
-import asyncHandler from "../utils/asyncHandler";
-import ApiError from "../utils/ApiError";
+import User from "../models/User.model.js";
+import asyncHandler from "../utils/asyncHandler.js";
+import ApiError from "../utils/ApiError.js";
 
 //upload resume
 const uploadResume = asyncHandler(async (req, res) => {

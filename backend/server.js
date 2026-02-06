@@ -6,7 +6,7 @@ import morgan from "morgan";
 import connectDB from "./config/db.js";
 
 // // routes
-// import authRoutes from "./routes/auth.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 import studentRoutes from "./routes/student.routes.js";
 import professorRoutes from "./routes/professor.routes.js";
 import projectRoutes from "./routes/project.routes.js";
@@ -48,7 +48,7 @@ app.get("/", (req, res) => {
   res.send("Faculty Connect API is running...");
 });
 
-// app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/professors", professorRoutes);
 app.use("/api/projects", projectRoutes);
@@ -67,5 +67,9 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
+  console.log('=== Environment Variables Check ===');
+console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? 'SET (length: ' + process.env.SENDGRID_API_KEY.length + ')' : 'NOT SET');
+console.log('SENDGRID_FROM_EMAIL:', process.env.SENDGRID_FROM_EMAIL);
+console.log('===================================');
   console.log(` Server running on port ${PORT}`);
 });

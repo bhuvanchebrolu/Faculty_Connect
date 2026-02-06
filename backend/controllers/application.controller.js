@@ -1,7 +1,7 @@
 
 import Application from "../models/Application.model.js";
 import Project from "../models/Project.Model.js";
-import User from "../models/User.model,js";
+import User from "../models/User.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
 
@@ -81,7 +81,7 @@ const createApplication = asyncHandler(async (req, res) => {
   }
 
   const application = await Application.create({
-    // student: req.user._id, 
+    student: req.user._id, 
     project: projectId,
     applicantName,
     applicantEmail,

@@ -30,7 +30,7 @@ const createProject = asyncHandler(async (req, res) => {
     deadline,
     skillsRequired: skillsRequired || [],
     attachmentUrl: attachmentUrl || null,
-    // createdBy: req.user._id,
+    createdBy: req.user._id,
   });
 
   res.status(201).json({
@@ -41,8 +41,8 @@ const createProject = asyncHandler(async (req, res) => {
 });
 
 const getMyProjects = asyncHandler(async (req, res) => {
-  //   const filter = { createdBy: req.user._id };
-  const filter = {};
+    const filter = { createdBy: req.user._id };
+  
   // optional status filter from query string, e.g. ?status=open
   if (req.query.status) {
     const allowed = ["open", "closed", "completed"];
@@ -66,7 +66,7 @@ const getApplications = asyncHandler(async (req, res) => {
   const { projectId } = req.params;
   const project = await Project.findOne({
     _id: projectId,
-    // createdBy: req.user._id,
+    createdBy: req.user._id,
   });
 
   if (!project) {
