@@ -1,5 +1,6 @@
+import "./config/env.js";
 import express from "express";
-import dotenv from "dotenv";
+// import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
 
@@ -18,9 +19,9 @@ import { notFound, errorHandler } from "./middlewares/error.middleware.js";
 
 import path from "path";
 
-dotenv.config({
-  path: path.resolve(process.cwd(), ".env"),
-});
+// dotenv.config({
+//   path: path.resolve(process.cwd(), ".env"),
+// });
 
 console.log("MONGO_URI:", process.env.MONGO_URI);
 

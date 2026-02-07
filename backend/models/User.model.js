@@ -19,8 +19,8 @@ const userSchema = new mongoose.Schema(
       trim: true,
       // Enforces @nitt.edu.in domain at the schema level
       match: [
-        /^[a-zA-Z0-9._-]+@nitt\.edu\.in$/,
-        "Only @nitt.edu.in email addresses are allowed",
+        /^[a-zA-Z0-9._-]+@nitt\.edu$/,
+        "Only @nitt.edu email addresses are allowed",
       ],
     },
 

@@ -1,9 +1,11 @@
 
 import sgMail from "@sendgrid/mail";
 
+console.log("KEY START:", process.env.SENDGRID_API_KEY?.substring(0, 5));
+
 // Initialize SendGrid with API key from environment variable
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
+// console.log('SendGrid API Key set:', !!process.env.SENDGRID_API_KEY);
 /**
  * Send email using SendGrid
  * @param {Object} options - Email options

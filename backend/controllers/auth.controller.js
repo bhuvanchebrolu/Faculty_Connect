@@ -68,9 +68,9 @@ const sendOTP = asyncHandler(async (req, res) => {
   }
 
   // validate email format
-  const emailRegex = /^[a-zA-Z0-9._-]+@nitt\.edu\.in$/;
+  const emailRegex = /^[a-zA-Z0-9._-]+@nitt\.edu$/;
   if (!emailRegex.test(email)) {
-    throw new ApiError(400, "Email must be a valid @nitt.edu.in address");
+    throw new ApiError(400, "Email must be a valid @nitt.edu address");
   }
 
   // detect role from email
@@ -99,13 +99,23 @@ const sendOTP = asyncHandler(async (req, res) => {
   }
 
   // check if email already registered
-  const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    throw new ApiError(409, "Email already registered. Please log in.");
+  try{
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new ApiError(409, "Email already registered. Please log in.");
+    }
+  }
+  catch(err){
+    if (err instanceof ApiError) {
+      throw err; // Re-throw known API errors
+    }
+    console.error("Error checking existing user:", err);
+    throw new ApiError(500, "Server error while checking email");
   }
 
   // generate OTP 
   const otp = generateOTP();
+  console.log(`Generated OTP for ${email}: ${otp}`); // For debugging - remove in production
 
   //  prepare temp user data
   const tempUserData = {
