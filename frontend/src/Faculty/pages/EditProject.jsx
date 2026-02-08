@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMessage } from '../../contexts/MessageContext';
 import FacultyHeader from '../components/FacultyHeader';
-import Footer from '../../Student/components/StudentFooter';
+import FacultyFooter from '../components/Footer';
 
 const EditProject = () => {
   const navigate = useNavigate();

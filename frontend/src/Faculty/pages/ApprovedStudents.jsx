@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMessage } from '../../contexts/MessageContext';
-import FacultyHeader from '../../components/FacultyHeader';
-import FacultyFooter from '../../components/FacultyFooter';
+import FacultyHeader from '../components/FacultyHeader';
+import FacultyFooter from '../components/Footer';
 
 const ApprovedStudents = () => {
   const navigate = useNavigate();
