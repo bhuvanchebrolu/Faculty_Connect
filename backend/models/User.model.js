@@ -98,18 +98,14 @@ userSchema.index(
 );
 
 // ─── Pre-save: hash password before storing ────────────────────────────────
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   // Only re-hash if the password field was actually changed
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) return;
 
-  try {
-    const salt = await bcrypt.genSalt(12);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
+  const salt = await bcrypt.genSalt(12);
+  this.password = await bcrypt.hash(this.password, salt);
 });
+
 
 // ─── Instance method: compare raw password against the stored hash ─────────
 userSchema.methods.comparePassword = async function (candidatePassword) {

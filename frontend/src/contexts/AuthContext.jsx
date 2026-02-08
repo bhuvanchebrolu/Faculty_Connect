@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }) => {
       const response = await fetch(`${API_URL}/api/auth/register/verify-otp`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, otp }), 
       });
 
       const data = await response.json();
@@ -249,7 +249,7 @@ export const AuthProvider = ({ children }) => {
       if (!response.ok) {
         // Handle 401 Unauthorized - token expired or invalid
         if (response.status === 401) {
-          logout();
+          await logout();
           throw new Error('Session expired. Please login again.');
         }
         throw new Error(data.message || 'API request failed');
