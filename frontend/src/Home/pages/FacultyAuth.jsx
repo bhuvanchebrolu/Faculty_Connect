@@ -47,7 +47,7 @@ const FacultyAuth = () => {
 
     if (result.success) {
       success('Welcome back!', `Logged in as ${result.user.name}`);
-      navigate('/faculty/dashboard');
+      navigate('/professor/dashboard');
     } else {
       showError('Login Failed', result.error);
     }
@@ -97,7 +97,7 @@ const FacultyAuth = () => {
         'Registration Successful!',
         `Welcome to Faculty Connect, ${result.user.name}!`
       );
-      navigate('/faculty/dashboard');
+      navigate('/professor/dashboard');
     } else {
       showError('Verification Failed', result.error);
     }

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useMessage } from '../../contexts/MessageContext';
-import FacultyHeader from '../components/FacultyHeader';
-import Footer from '../../Student/components/Footer';
+import FacultyHeader from '../../components/FacultyHeader';
+import FacultyFooter from '../../components/FacultyFooter';
 
 const AddProject = () => {
   const navigate = useNavigate();
@@ -16,16 +16,17 @@ const AddProject = () => {
     description: '',
     domain: '',
     skillsRequired: '',
+    cvRequired: true,
     maxStudents: 2,
     deadline: '',
-    attachmentUrl: '', // Optional
+    attachmentUrl: '',
   });
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -34,12 +35,12 @@ const AddProject = () => {
     setIsSubmitting(true);
 
     try {
-      // Prepare data for backend
       const projectData = {
         title: formData.title,
         description: formData.description,
         domain: formData.domain,
         skillsRequired: formData.skillsRequired.split(',').map(s => s.trim()).filter(Boolean),
+        cvRequired: formData.cvRequired,
         maxStudents: parseInt(formData.maxStudents),
         deadline: new Date(formData.deadline).toISOString(),
         attachmentUrl: formData.attachmentUrl || undefined,
@@ -153,6 +154,22 @@ const AddProject = () => {
               <p className="text-xs text-gray-500 mt-1">Separate skills with commas</p>
             </div>
 
+            {/* CV Required */}
+            <div>
+              <label className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="cvRequired"
+                  checked={formData.cvRequired}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                />
+                <span className="ml-2 text-sm font-medium text-gray-700">
+                  CV/Resume Required <span className="text-red-500">*</span>
+                </span>
+              </label>
+            </div>
+
             {/* Max Students */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -187,7 +204,7 @@ const AddProject = () => {
               />
             </div>
 
-            {/* Attachment URL (Optional) */}
+            {/* Attachment URL */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Attachment URL (Optional)
@@ -225,7 +242,7 @@ const AddProject = () => {
         </form>
       </main>
 
-      <Footer />
+      <FacultyFooter />
     </div>
   );
 };

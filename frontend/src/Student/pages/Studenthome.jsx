@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import FacultyCard from '../components/FacultyCard';
+import Header from '../components/StudentHeader';
+import Footer from '../components/StudentFooter';
+import FacultyCard from '../components/ProfessorCard';
 
 const StudentHome = () => {
   const navigate = useNavigate();

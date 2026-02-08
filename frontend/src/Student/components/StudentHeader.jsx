@@ -1,49 +1,45 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
-const Header = () => {
+const StudentHeader = () => {
   const navigate = useNavigate();
-
-  // Temporary user data - replace with actual user context/state
-  const currentUser = {
-    name: 'Aditya Kumar',
-    role: 'student'
-  };
+  const { user } = useAuth();
 
   return (
-    <header className="bg-white border-b border-gray-200">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Left Side - Logo and Title */}
+          {/* Left: Logo and Title */}
           <div className="flex items-center space-x-4">
             {/* NIT Logo */}
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-yellow-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-lg">NIT</span>
-              </div>
-              <div>
-                <h1 className="text-sm font-semibold text-gray-900">National Institute of Technology</h1>
-                <p className="text-xs text-gray-500">Tiruchirappalli</p>
-              </div>
+            <div className="w-12 h-12 bg-yellow-600 rounded flex items-center justify-center">
+              <span className="text-white font-bold text-lg">NIT</span>
+            </div>
+            
+            {/* Institute Name */}
+            <div>
+              <h1 className="text-sm font-semibold text-gray-900">National Institute of Technology</h1>
+              <p className="text-xs text-gray-600">Tiruchirappalli</p>
             </div>
 
             {/* SCIENT Badge */}
             <div className="hidden md:flex items-center ml-4">
-              <div className="bg-gray-700 px-3 py-1 rounded">
+              <div className="bg-gray-700 px-3 py-1.5 rounded">
                 <span className="text-yellow-500 font-semibold text-xs">SCIENT</span>
               </div>
               <div className="ml-2">
                 <p className="text-xs font-medium text-gray-900">Internship Portal</p>
-                <p className="text-xs text-gray-500">Student Access</p>
+                <p className="text-xs text-gray-600">Student Access</p>
               </div>
             </div>
           </div>
 
-          {/* Right Side - Navigation Icons and User */}
+          {/* Right: Icons and User */}
           <div className="flex items-center space-x-6">
             {/* Home Icon */}
             <button
-              onClick={() => navigate('/student/home')}
+              onClick={() => navigate('/student/browse')}
               className="text-gray-600 hover:text-gray-900 transition-colors"
               title="Home"
             >
@@ -70,7 +66,7 @@ const Header = () => {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <span className="font-medium">{currentUser.name}</span>
+              <span className="font-medium hidden md:block">{user?.name || 'Student'}</span>
             </button>
           </div>
         </div>
@@ -79,4 +75,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default StudentHeader;

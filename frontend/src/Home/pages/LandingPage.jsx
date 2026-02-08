@@ -189,7 +189,7 @@ const LandingPage = () => {
 
                 {/* Button */}
                 <motion.button
-                  onClick={() => navigate('/faculty/auth')}
+                  onClick={() => navigate('/professor/auth')}
                   className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 shadow-md"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

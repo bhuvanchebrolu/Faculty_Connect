@@ -1,111 +1,120 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import { useAuth } from '../../contexts/AuthContext';
+import { useMessage } from '../../contexts/MessageContext';
+import StudentHeader from '../../components/student/StudentHeader';
+import StudentFooter from '../../components/student/StudentFooter';
 
 const ProjectDetails = () => {
   const navigate = useNavigate();
   const { projectId } = useParams();
+  const { apiRequest, user } = useAuth();
+  const { success, error: showError } = useMessage();
 
-  // Form state
+  const [project, setProject] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Application Form Data
   const [formData, setFormData] = useState({
-    fullName: '',
+    applicantName: user?.name || '',
     department: '',
-    rollNumber: '',
-    email: 'student@nitt.edu',
-    phone: '',
+    rollNumber: user?.rollNumber || '',
+    applicantEmail: user?.email || '',
+    applicantPhone: '',
     skills: '',
-    interests: '',
-    statement: '',
-    resume: null,
+    areasOfInterest: '',
+    statementOfInterest: '',
+    resumeUrl: '',
+    cgpa: '',
   });
 
   const [wordCount, setWordCount] = useState(0);
 
-  // Temporary project data - replace with API call later
-  const projectDetails = {
-    title: 'Machine Learning for Healthcare Diagnostics',
-    professor: 'Dr. Ramesh Kumar',
-    department: 'Computer Science and Engineering',
-    email: 'ramesh@nitt.edu',
-    overview: 'Develop ML models for early disease detection using medical imaging data',
-    objectives: [
-      'Conduct comprehensive research in the specified domain',
-      'Develop practical solutions to real-world problems',
-      'Collaborate with faculty and research team members',
-      'Document findings and present results',
-    ],
-    requirements: [
-      'Strong foundation in relevant technical skills',
-      'Commitment to regular research meetings and deadlines',
-      'Ability to work independently and as part of a team',
-      'Excellent communication and documentation skills',
-      'CV/Resume submission is required for this project',
-    ],
-    duration: 'This internship typically runs for one semester (approximately 4-6 months) and requires a minimum commitment of 10-15 hours per week.',
+  useEffect(() => {
+    fetchProject();
+  }, [projectId]);
+
+  const fetchProject = async () => {
+    setIsLoading(true);
+    const result = await apiRequest(`/api/projects/${projectId}`);
+
+    if (result.success) {
+      setProject(result.data.data);
+    } else {
+      showError('Error', 'Failed to load project details');
+      navigate('/student/browse');
+    }
+    setIsLoading(false);
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData(prev => ({ ...prev, [name]: value }));
 
-    if (name === 'statement') {
-      const words = value.trim().split(/\s+/).filter(word => word.length > 0);
+    // Update word count for statement
+    if (name === 'statementOfInterest') {
+      const words = value.trim().split(/\s+/).filter(Boolean);
       setWordCount(words.length);
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setFormData(prev => ({
-      ...prev,
-      resume: file,
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate word count
     if (wordCount < 50) {
-      alert('Please write at least 50 words explaining why you want to attend this internship.');
+      showError('Validation Error', 'Statement must be at least 50 words');
       return;
     }
 
-    // TODO: Uncomment and implement API call
-    /*
-    const formDataToSend = new FormData();
-    Object.keys(formData).forEach(key => {
-      formDataToSend.append(key, formData[key]);
-    });
-    formDataToSend.append('projectId', projectId);
+    setIsSubmitting(true);
 
-    fetch('/api/applications/submit', {
-      method: 'POST',
-      body: formDataToSend,
-    })
-      .then(response => response.json())
-      .then(data => {
-        alert('Application submitted successfully!');
-        navigate('/student/applications');
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to submit application. Please try again.');
+    try {
+      const applicationData = {
+        ...formData,
+        projectId: project._id,
+        year: user?.year || 1,
+        branch: formData.department,
+        cgpa: parseFloat(formData.cgpa),
+      };
+
+      const result = await apiRequest('/api/applications', {
+        method: 'POST',
+        body: JSON.stringify(applicationData),
       });
-    */
 
-    // Temporary success message
-    alert('Application submitted successfully! (This is a demo - no actual submission)');
-    console.log('Form data:', formData);
+      if (result.success) {
+        success('Application Submitted!', 'Your application has been sent to the professor');
+        navigate('/student/applications');
+      } else {
+        showError('Submission Failed', result.error);
+      }
+    } catch (err) {
+      showError('Error', 'Failed to submit application');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <StudentHeader />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mb-4"></div>
+            <p className="text-gray-600">Loading project...</p>
+          </div>
+        </main>
+        <StudentFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Header />
+      <StudentHeader />
 
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
@@ -120,79 +129,91 @@ const ProjectDetails = () => {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Project Details */}
+          {/* Left: Project Details */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-              {/* Project Title */}
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">
-                {projectDetails.title}
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">{project.title}</h1>
 
-              {/* Professor Info */}
-              <div className="mb-6 pb-6 border-b border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <span className="font-medium text-gray-700">Professor: </span>
-                    <span className="text-gray-600">{projectDetails.professor}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Department: </span>
-                    <span className="text-gray-600">{projectDetails.department}</span>
-                  </div>
-                  <div>
-                    <span className="font-medium text-gray-700">Email: </span>
-                    <span className="text-gray-600">{projectDetails.email}</span>
-                  </div>
+              <div className="flex items-center gap-6 text-sm text-gray-600 mb-6">
+                <div>
+                  <span className="font-medium">Professor: </span>
+                  {project.createdBy?.name}
+                </div>
+                <div>
+                  <span className="font-medium">Department: </span>
+                  {project.createdBy?.department}
+                </div>
+                <div>
+                  <span className="font-medium">Email: </span>
+                  {project.createdBy?.email}
                 </div>
               </div>
 
               {/* Project Overview */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Project Overview</h2>
-                <p className="text-gray-600">{projectDetails.overview}</p>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">Project Overview</h2>
+                <p className="text-gray-700">{project.description}</p>
               </div>
 
-              {/* Objectives & Goals */}
+              {/* Skills Required */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Objectives & Goals</h2>
-                <ul className="space-y-2">
-                  {projectDetails.objectives.map((objective, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-yellow-600 mr-2">•</span>
-                      <span className="text-gray-600">{objective}</span>
-                    </li>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">Skills Required</h2>
+                <div className="flex flex-wrap gap-2">
+                  {(Array.isArray(project.skillsRequired) ? project.skillsRequired : []).map((skill, idx) => (
+                    <span key={idx} className="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
+                      {skill}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
 
-              {/* Requirements & Expectations */}
+              {/* Domain */}
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Requirements & Expectations</h2>
-                <ul className="space-y-2">
-                  {projectDetails.requirements.map((requirement, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="text-yellow-600 mr-2">•</span>
-                      <span className={`text-gray-600 ${
-                        requirement.includes('CV/Resume') ? 'font-medium text-yellow-700' : ''
-                      }`}>
-                        {requirement}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">Domain</h2>
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                  {project.domain}
+                </span>
               </div>
 
-              {/* Duration & Commitment */}
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-3">Duration & Commitment</h2>
-                <p className="text-gray-600">{projectDetails.duration}</p>
+              {/* Additional Info */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Max Students</h3>
+                  <p className="text-gray-900">{project.maxStudents}</p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-1">Deadline</h3>
+                  <p className="text-gray-900">{new Date(project.deadline).toLocaleDateString()}</p>
+                </div>
+              </div>
+
+              {/* Attachment */}
+              {project.attachmentUrl && (
+                <div className="mb-6">
+                  <a
+                    href={project.attachmentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                  >
+                    View Project Document →
+                  </a>
+                </div>
+              )}
+
+              {/* CV Required Notice */}
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <p className="text-sm text-yellow-900">
+                  <span className="font-semibold">Note: </span>
+                  CV/Resume submission is required for this project
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Right Column - Application Form */}
+          {/* Right: Application Form */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-24">
               <h2 className="text-xl font-semibold text-gray-900 mb-6">Submit Application</h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -203,11 +224,11 @@ const ProjectDetails = () => {
                   </label>
                   <input
                     type="text"
-                    name="fullName"
-                    value={formData.fullName}
+                    name="applicantName"
+                    value={formData.applicantName}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                   />
                 </div>
 
@@ -222,7 +243,8 @@ const ProjectDetails = () => {
                     value={formData.department}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="e.g., Computer Science"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                   />
                 </div>
 
@@ -237,38 +259,57 @@ const ProjectDetails = () => {
                     value={formData.rollNumber}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                   />
                 </div>
 
-                {/* Institute Webmail */}
+                {/* Email */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Institute Webmail <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
-                    name="email"
-                    value={formData.email}
+                    name="applicantEmail"
+                    value={formData.applicantEmail}
                     onChange={handleInputChange}
                     required
                     placeholder="student@nitt.edu"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                   />
                 </div>
 
-                {/* Phone Number */}
+                {/* Phone */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
-                    name="phone"
-                    value={formData.phone}
+                    name="applicantPhone"
+                    value={formData.applicantPhone}
                     onChange={handleInputChange}
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
+                  />
+                </div>
+
+                {/* CGPA */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    CGPA <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="10"
+                    name="cgpa"
+                    value={formData.cgpa}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="e.g., 8.5"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                   />
                 </div>
 
@@ -284,7 +325,7 @@ const ProjectDetails = () => {
                     onChange={handleInputChange}
                     required
                     placeholder="e.g., Python, Machine Learning"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                   />
                 </div>
 
@@ -295,58 +336,59 @@ const ProjectDetails = () => {
                   </label>
                   <input
                     type="text"
-                    name="interests"
-                    value={formData.interests}
+                    name="areasOfInterest"
+                    value={formData.areasOfInterest}
                     onChange={handleInputChange}
                     required
                     placeholder="e.g., AI, Robotics"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
                   />
                 </div>
 
-                {/* Why Statement */}
+                {/* Statement */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Why do you want to attend this internship? <span className="text-red-500">*</span>
-                    <span className="text-xs text-gray-500 ml-1">(min. 50 words)</span>
+                    Why do you want to attend this internship? <span className="text-red-500">* (min. 50 words)</span>
                   </label>
                   <textarea
-                    name="statement"
-                    value={formData.statement}
+                    name="statementOfInterest"
+                    value={formData.statementOfInterest}
                     onChange={handleInputChange}
                     required
                     rows="4"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
-                  />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm resize-none"
+                  ></textarea>
                   <p className="text-xs text-gray-500 mt-1">
                     Word count: {wordCount} / 50 minimum
                   </p>
                 </div>
 
-                {/* Upload CV/Resume */}
+                {/* Resume URL */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Upload CV / Resume <span className="text-red-500">*</span>
-                    <span className="text-xs text-gray-500 ml-1">(PDF or DOC)</span>
+                    Upload CV / Resume <span className="text-red-500">* (PDF or DOC)</span>
                   </label>
-                  <div className="mt-1">
-                    <input
-                      type="file"
-                      name="resume"
-                      onChange={handleFileChange}
-                      accept=".pdf,.doc,.docx"
-                      required
-                      className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-yellow-50 file:text-yellow-700 hover:file:bg-yellow-100"
-                    />
-                  </div>
+                  <input
+                    type="url"
+                    name="resumeUrl"
+                    value={formData.resumeUrl}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Paste Google Drive/Dropbox link"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent text-sm"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Share link to your resume (Google Drive, Dropbox, etc.)
+                  </p>
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full bg-yellow-600 text-white py-3 px-4 rounded-md font-medium hover:bg-yellow-700 transition-colors duration-200 mt-6"
+                  disabled={isSubmitting || wordCount < 50}
+                  className="w-full px-4 py-3 bg-yellow-600 text-white font-semibold rounded-md hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Submit Application
+                  {isSubmitting ? 'Submitting...' : 'Submit Application'}
                 </button>
               </form>
             </div>
@@ -354,7 +396,7 @@ const ProjectDetails = () => {
         </div>
       </main>
 
-      <Footer />
+      <StudentFooter />
     </div>
   );
 };

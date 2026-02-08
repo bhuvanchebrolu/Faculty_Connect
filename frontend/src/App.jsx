@@ -1,28 +1,38 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import StudentHome from "./Student/pages/Studenthome";
-import FacultyProjects from "./Student/pages/FacultyProjects";
-import ProjectDetails from "./Student/pages/ProjectDetails";
-import StudentProfile from "./Student/pages/StudentProfile";
-import AllProfessors from "./Student/pages/AllProfessors";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { MessageProvider } from './contexts/MessageContext';
+import ProtectedRoute from './contexts/ProtectedRoute';
 
-import "./App.css";
+// Public Pages
+
 import LandingPage from "./Home/pages/LandingPage";
-import StudentAuth from "./Home/pages/StudentAuth";
 import FacultyAuth from "./Home/pages/FacultyAuth";
-import FacultyDashboard from "./Faculty/pages/FacultyDashboard";
-import AddProject from "./Faculty/pages/AddProject";
-import FacultyProfile from "./Faculty/pages/FacultyProfile";
-import EditProject from "./Faculty/pages/EditProject.jsx";
-import FacultyProfileDetails from "./Faculty/pages/FacultyProfileDetails";
-import { AuthProvider } from "./contexts/AuthContext.jsx";
-import { MessageProvider } from "./contexts/MessageContext.jsx";
-import ApplicationsPage from "./Faculty/pages/ApplicationsPage.jsx";
+import StudentAuth from "./Home/pages/StudentAuth"
+
+// Student Pages
+import BrowseProjects from './Student/pages/BrowseProjects';
+import ProfessorProjects from './Student/pages/ProfessorProjects';
+import ProjectDetails from './Student/pages/ProjectDetails';
+import AllProfessors from './Student/pages/AllProfessors';
+import StudentProfile from './Student/pages/StudentProfile';
+
+
+// Professor Pages
+import ProfessorDashboard from './Faculty/pages/ProfessorDashboard';
+import ProfessorProfile from './Faculty/pages/ProfessorProfile';
+import AddProject from './Faculty/pages/AddProject';
+import EditProject from './Faculty/pages/EditProject';
+import AllStudents from './Faculty/pages/AllStudents';
+import ApprovedStudents from './Faculty/pages/ApprovedStudents';
+import RejectedStudents from './Faculty/pages/RejectedStudents';
+
+// Admin Pages
+
+import AdminDashboard from './admin/pages/AdminDashboard';
+import AdminStudents from './admin/pages/AdminStudents';
+import AdminProfessors from './admin/pages/AdminProfessors';
+import AdminProjects from './admin/pages/AdminProjects';
 
 function App() {
   return (
@@ -30,41 +40,146 @@ function App() {
       <AuthProvider>
         <MessageProvider>
           <Routes>
-            {/* Student Routes */}
-            <Route path="/student/auth" element={<StudentAuth />} />
-            <Route path="/student/dashboard" element={<StudentHome />} />
-            <Route
-              path="/faculty/:facultyId/projects"
-              element={<FacultyProjects />}
-            />
-            <Route path="/project/:projectId" element={<ProjectDetails />} />
-            <Route path="/student/profile" element={<StudentProfile />} />
-            <Route path="/all-professors" element={<AllProfessors />} />
-
-            {/* Faculty Routes */}
-            <Route path="/professor/auth" element={<FacultyAuth />} />
-            <Route path="/professor/dashboard" element={<FacultyDashboard />} />
-            <Route path="/professor/add-project" element={<AddProject />} />
-            <Route path="/professor/profile" element={<FacultyProfile />} />
-            <Route
-              path="/professor/edit-project/:projectId"
-              element={<EditProject />}
-            />
-            <Route
-              path="/professor/profile-details"
-              element={<FacultyProfileDetails />}
-            />
-             <Route
-              path="/professor/projects/:projectId/applications"
-              element={<ApplicationsPage />}
-            />
-            {/* Default redirect */}
+            {/* PUBLIC ROUTES */}
             <Route path="/" element={<LandingPage />} />
+            <Route path="/student/auth" element={<StudentAuth />} />
+            <Route path="/faculty/auth" element={<FacultyAuth />} />
 
-            {/* ═══════════════════════════════════════════════════════ */}
-            {/* 404 NOT FOUND */}
-            {/* ═══════════════════════════════════════════════════════ */}
-            
+            {/* STUDENT ROUTES */}
+            <Route
+              path="/student/browse"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <BrowseProjects />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/professors/:professorId/projects"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <ProfessorProjects />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/projects/:projectId"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <ProjectDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/professors/all"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <AllProfessors />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/profile"
+              element={
+                <ProtectedRoute allowedRoles={['student']}>
+                  <StudentProfile />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* PROFESSOR ROUTES */}
+            <Route
+              path="/professor/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['professor']}>
+                  <ProfessorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/professor/profile"
+              element={
+                <ProtectedRoute allowedRoles={['professor']}>
+                  <ProfessorProfile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/professor/add-project"
+              element={
+                <ProtectedRoute allowedRoles={['professor']}>
+                  <AddProject />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/professor/projects/:projectId/edit"
+              element={
+                <ProtectedRoute allowedRoles={['professor']}>
+                  <EditProject />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/professor/students/all"
+              element={
+                <ProtectedRoute allowedRoles={['professor']}>
+                  <AllStudents />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/professor/students/approved"
+              element={
+                <ProtectedRoute allowedRoles={['professor']}>
+                  <ApprovedStudents />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/professor/students/rejected"
+              element={
+                <ProtectedRoute allowedRoles={['professor']}>
+                  <RejectedStudents />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* ADMIN ROUTES */}
+            <Route
+              path="/admin/dashboard"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/students"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminStudents />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/professors"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminProfessors />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/projects"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <AdminProjects />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </MessageProvider>
@@ -73,21 +188,16 @@ function App() {
   );
 }
 
-const NotFound = () => {
-  return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
-      <div className="text-center">
-        <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-8">Page not found</p>
-        <a
-          href="/"
-          className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
-        >
-          Back to Home
-        </a>
-      </div>
+const NotFound = () => (
+  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="text-center">
+      <h1 className="text-6xl font-bold text-gray-900 mb-4">404</h1>
+      <p className="text-xl text-gray-600 mb-8">Page not found</p>
+      <a href="/" className="px-6 py-3 bg-yellow-600 text-white font-medium rounded-md hover:bg-yellow-700 transition-colors">
+        Back to Home
+      </a>
     </div>
-  );
-};
+  </div>
+);
 
 export default App;
