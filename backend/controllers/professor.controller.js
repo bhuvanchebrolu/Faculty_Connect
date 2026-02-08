@@ -41,8 +41,8 @@ const createProject = asyncHandler(async (req, res) => {
 });
 
 const getMyProjects = asyncHandler(async (req, res) => {
-    const filter = { createdBy: req.user._id };
-  
+  const filter = { createdBy: req.user._id };
+
   // optional status filter from query string, e.g. ?status=open
   if (req.query.status) {
     const allowed = ["open", "closed", "completed"];
@@ -86,17 +86,31 @@ const getApplications = asyncHandler(async (req, res) => {
     filter.status = req.query.status;
   }
 
-  const applications = await Application.find(filter)
-    .populate(
-      "student",
-      "name email rollNumber branch year resumeUrl profileImage",
-    )
-    .sort({ createdAt: -1 });
+  const applications = await Application.find(filter).populate(
+    "student",
+    "name email rollNumber branch year phone",
+  );
 
-  res.status(200).json({
+  const formattedApplications = applications.map((app) => ({
+    _id: app._id,
+    applicantName: app.student.name,
+    applicantEmail: app.student.email,
+    applicantPhone: app.student.phone,
+    rollNumber: app.student.rollNumber,
+    branch: app.student.branch,
+    year: app.student.year,
+    skills: app.skills,
+    cgpa: app.cgpa,
+    resumeUrl: app.resumeUrl,
+    statementOfInterest: app.statementOfInterest,
+    status: app.status,
+  }));
+
+  res.json({
     success: true,
-    count: applications.length,
-    data: applications,
+    data: {
+      data: formattedApplications,
+    },
   });
 });
 
@@ -177,10 +191,10 @@ const getAllStudents = asyncHandler(async (req, res) => {
     filter.$or = [{ name: regex }, { rollNumber: regex }];
   }
   const students = await User.find(filter)
-    .select("-password") 
-    .sort({ name: 1 }); 
+    .select("-password")
+    .sort({ name: 1 });
 
-     console.log("DEBUG filter:", filter);
+  console.log("DEBUG filter:", filter);
   console.log("DEBUG count:", students.length);
   console.log("DEBUG students:", students);
 
@@ -191,11 +205,56 @@ const getAllStudents = asyncHandler(async (req, res) => {
   });
 });
 
+// GET professor profile
+const getProfessorProfile = asyncHandler(async (req, res) => {
+  const professor = await User.findById(req.user._id).select("-password");
+
+  if (!professor) {
+    throw new ApiError(404, "Professor not found");
+  }
+
+  res.status(200).json({
+    success: true,
+    data: professor,
+  });
+});
+
+// UPDATE professor profile
+const updateProfessorProfile = asyncHandler(async (req, res) => {
+  const { name, department, designation, profileImage } = req.body;
+
+  const updates = {};
+  if (name !== undefined) updates.name = name;
+  if (department !== undefined) updates.department = department;
+  if (designation !== undefined) updates.designation = designation;
+  if (profileImage !== undefined) updates.profileImage = profileImage;
+
+  if (Object.keys(updates).length === 0) {
+    throw new ApiError(400, "At least one field must be provided to update");
+  }
+
+  const professor = await User.findByIdAndUpdate(req.user._id, updates, {
+    new: true,
+    runValidators: true,
+  }).select("-password");
+
+  if (!professor) {
+    throw new ApiError(404, "Professor not found");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Profile updated successfully",
+    data: professor,
+  });
+});
+
 export {
   createProject,
   getMyProjects,
   getApplications,
   updateApplicationStatus,
   getAllStudents,
+  getProfessorProfile,
+  updateProfessorProfile,
 };
-

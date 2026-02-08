@@ -10,6 +10,8 @@ import {
   getApplications,
   updateApplicationStatus,
   getAllStudents,
+  getProfessorProfile,
+  updateProfessorProfile
 } from "../controllers/professor.controller.js";
 
 router.use(authenticate, authorizeRole("professor"));
@@ -22,5 +24,7 @@ router.get("/projects/:projectId/applications", getApplications);
 router.put("/applications/:applicationId", updateApplicationStatus);
 
 router.get("/students", getAllStudents);
+router.get("/profile", getProfessorProfile);
+router.put("/profile", updateProfessorProfile);
 
 export default router;

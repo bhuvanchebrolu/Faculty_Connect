@@ -1,80 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useMessage } from '../../contexts/MessageContext';
 import FacultyHeader from '../components/FacultyHeader';
-import Footer from '../components/Footer';
+import Footer from '../../Student/components/Footer';
 
 const EditProject = () => {
   const navigate = useNavigate();
   const { projectId } = useParams();
+  const { apiRequest } = useAuth();
+  const { success, error: showError } = useMessage();
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    department: 'Computer Science and Engineering',
     domain: '',
-    prerequisites: '',
     skillsRequired: '',
-    cvRequired: 'yes',
-    duration: '',
-    commitment: '',
-    objectives: '',
-    expectations: '',
+    maxStudents: 2,
+    deadline: '',
+    attachmentUrl: '',
   });
 
-  const departments = [
-    'Computer Science and Engineering',
-    'Electronics and Communication Engineering',
-    'Mechanical Engineering',
-    'Civil Engineering',
-    'Electrical and Electronics Engineering',
-    'Chemical Engineering',
-    'Mathematics',
-    'Physics',
-    'Chemistry',
-  ];
-
-  // Load project data
+  // Load project data from backend
   useEffect(() => {
-    // TODO: Replace with actual API call
-    /*
-    fetch(`/api/faculty/projects/${projectId}`)
-      .then(response => response.json())
-      .then(data => {
-        setFormData({
-          title: data.title,
-          description: data.description,
-          department: data.department,
-          domain: data.domain,
-          prerequisites: data.prerequisites,
-          skillsRequired: data.skillsRequired,
-          cvRequired: data.cvRequired ? 'yes' : 'no',
-          duration: data.duration,
-          commitment: data.commitment,
-          objectives: data.objectives,
-          expectations: data.expectations,
-        });
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to load project data.');
-      });
-    */
-
-    // Temporary demo data
-    setFormData({
-      title: 'Machine Learning for Healthcare Diagnostics',
-      description: 'Develop ML models for early disease detection using medical imaging data',
-      department: 'Computer Science and Engineering',
-      domain: 'Machine Learning, Healthcare',
-      prerequisites: 'Strong foundation in Python programming\nBasic understanding of machine learning concepts',
-      skillsRequired: 'Python, TensorFlow, Machine Learning, Data Analysis',
-      cvRequired: 'yes',
-      duration: 'One semester (4-6 months)',
-      commitment: '10-15 hours per week',
-      objectives: 'Conduct comprehensive research in the specified domain\nDevelop practical solutions to real-world problems\nCollaborate with faculty and research team members\nDocument findings and present results',
-      expectations: 'Strong foundation in relevant technical skills\nCommitment to regular research meetings and deadlines\nAbility to work independently and as part of a team\nExcellent communication and documentation skills',
-    });
+    fetchProject();
   }, [projectId]);
+
+  const fetchProject = async () => {
+    setIsLoading(true);
+    const result = await apiRequest(`/api/projects/${projectId}`);
+
+    if (result.success) {
+      const project = result.data.data;
+      setFormData({
+        title: project.title,
+        description: project.description,
+        domain: project.domain,
+        skillsRequired: Array.isArray(project.skillsRequired) 
+          ? project.skillsRequired.join(', ') 
+          : project.skillsRequired,
+        maxStudents: project.maxStudents,
+        deadline: new Date(project.deadline).toISOString().split('T')[0],
+        attachmentUrl: project.attachmentUrl || '',
+      });
+    } else {
+      showError('Error', 'Failed to load project data.');
+      navigate('/professor/profile');
+    }
+    setIsLoading(false);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -84,57 +61,69 @@ const EditProject = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
-    // TODO: Replace with actual API call
-    /*
-    fetch(`/api/faculty/projects/${projectId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-    })
-      .then(response => response.json())
-      .then(data => {
-        alert('Project updated successfully!');
-        navigate('/faculty/profile');
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Failed to update project. Please try again.');
+    try {
+      // Prepare data for backend
+      const projectData = {
+        title: formData.title,
+        description: formData.description,
+        domain: formData.domain,
+        skillsRequired: formData.skillsRequired.split(',').map(s => s.trim()).filter(Boolean),
+        maxStudents: parseInt(formData.maxStudents),
+        deadline: new Date(formData.deadline).toISOString(),
+        attachmentUrl: formData.attachmentUrl || undefined,
+      };
+
+      const result = await apiRequest(`/api/professors/projects/${projectId}`, {
+        method: 'PUT',
+        body: JSON.stringify(projectData),
       });
-    */
 
-    // Temporary success message
-    alert('Project updated successfully! (This is a demo - no actual update)');
-    console.log('Updated project data:', formData);
-    navigate('/faculty/profile');
-  };
-
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
-      // TODO: Replace with actual API call
-      /*
-      fetch(`/api/faculty/projects/${projectId}`, {
-        method: 'DELETE',
-      })
-        .then(response => response.json())
-        .then(data => {
-          alert('Project deleted successfully!');
-          navigate('/faculty/profile');
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          alert('Failed to delete project.');
-        });
-      */
-
-      alert('Project deleted successfully! (This is a demo)');
-      navigate('/faculty/profile');
+      if (result.success) {
+        success('Project Updated!', `${formData.title} has been updated successfully`);
+        navigate('/professor/profile');
+      } else {
+        showError('Update Failed', result.error);
+      }
+    } catch (err) {
+      showError('Error', 'Failed to update project. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this project? This will also delete all applications. This action cannot be undone.')) {
+      const result = await apiRequest(`/api/professors/projects/${projectId}`, {
+        method: 'DELETE',
+      });
+
+      if (result.success) {
+        success('Project Deleted', 'Project has been deleted successfully');
+        navigate('/professor/profile');
+      } else {
+        showError('Delete Failed', result.error);
+      }
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col">
+        <FacultyHeader />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mb-4"></div>
+            <p className="text-gray-600">Loading project...</p>
+          </div>
+        </main>
+        <FacultyFooter />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -186,29 +175,9 @@ const EditProject = () => {
                 value={formData.description}
                 onChange={handleInputChange}
                 required
-                rows="3"
+                rows="4"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
               />
-            </div>
-
-            {/* Department */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Department <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="department"
-                value={formData.department}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-              >
-                {departments.map((dept) => (
-                  <option key={dept} value={dept}>
-                    {dept}
-                  </option>
-                ))}
-              </select>
             </div>
 
             {/* Domain */}
@@ -226,20 +195,6 @@ const EditProject = () => {
               />
             </div>
 
-            {/* Prerequisites */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Prerequisites
-              </label>
-              <textarea
-                name="prerequisites"
-                value={formData.prerequisites}
-                onChange={handleInputChange}
-                rows="2"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
-              />
-            </div>
-
             {/* Skills Required */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -253,95 +208,54 @@ const EditProject = () => {
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               />
+              <p className="text-xs text-gray-500 mt-1">Separate skills with commas</p>
             </div>
 
-            {/* CV Required */}
+            {/* Max Students */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                CV/Resume Required <span className="text-red-500">*</span>
-              </label>
-              <div className="flex space-x-4">
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="cvRequired"
-                    value="yes"
-                    checked={formData.cvRequired === 'yes'}
-                    onChange={handleInputChange}
-                    className="w-4 h-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">Yes</span>
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="radio"
-                    name="cvRequired"
-                    value="no"
-                    checked={formData.cvRequired === 'no'}
-                    onChange={handleInputChange}
-                    className="w-4 h-4 text-yellow-600 focus:ring-yellow-500 border-gray-300"
-                  />
-                  <span className="ml-2 text-sm text-gray-700">No</span>
-                </label>
-              </div>
-            </div>
-
-            {/* Duration */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Duration
+                Maximum Students <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
-                name="duration"
-                value={formData.duration}
+                type="number"
+                name="maxStudents"
+                value={formData.maxStudents}
                 onChange={handleInputChange}
+                required
+                min="1"
+                max="10"
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               />
             </div>
 
-            {/* Time Commitment */}
+            {/* Deadline */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Time Commitment
+                Application Deadline <span className="text-red-500">*</span>
               </label>
               <input
-                type="text"
-                name="commitment"
-                value={formData.commitment}
+                type="date"
+                name="deadline"
+                value={formData.deadline}
                 onChange={handleInputChange}
+                required
+                min={new Date().toISOString().split('T')[0]}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               />
             </div>
 
-            {/* Objectives & Goals */}
+            {/* Attachment URL */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Objectives & Goals
+                Attachment URL (Optional)
               </label>
-              <textarea
-                name="objectives"
-                value={formData.objectives}
+              <input
+                type="url"
+                name="attachmentUrl"
+                value={formData.attachmentUrl}
                 onChange={handleInputChange}
-                rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               />
-              <p className="text-xs text-gray-500 mt-1">Enter each objective on a new line</p>
-            </div>
-
-            {/* Requirements & Expectations */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Requirements & Expectations
-              </label>
-              <textarea
-                name="expectations"
-                value={formData.expectations}
-                onChange={handleInputChange}
-                rows="4"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
-              />
-              <p className="text-xs text-gray-500 mt-1">Enter each requirement on a new line</p>
             </div>
           </div>
 
@@ -350,7 +264,8 @@ const EditProject = () => {
             <button
               type="button"
               onClick={handleDelete}
-              className="px-6 py-2 border border-red-300 text-red-600 font-medium rounded-md hover:bg-red-50 transition-colors"
+              disabled={isSubmitting}
+              className="px-6 py-2 border border-red-300 text-red-600 font-medium rounded-md hover:bg-red-50 transition-colors disabled:opacity-50"
             >
               Delete Project
             </button>
@@ -358,15 +273,17 @@ const EditProject = () => {
               <button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors"
+                disabled={isSubmitting}
+                className="px-6 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-6 py-2 bg-yellow-600 text-white font-medium rounded-md hover:bg-yellow-700 transition-colors"
+                disabled={isSubmitting}
+                className="px-6 py-2 bg-yellow-600 text-white font-medium rounded-md hover:bg-yellow-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Update Project
+                {isSubmitting ? 'Updating...' : 'Update Project'}
               </button>
             </div>
           </div>

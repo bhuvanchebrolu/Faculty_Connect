@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useMessage } from '../../contexts/MessageContext';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const FacultyAuth = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('login'); // 'login' or 'register'
-  const [registerStep, setRegisterStep] = useState(1); // 1 = form, 2 = OTP
+  const { login, sendOTP, verifyOTP } = useAuth();
+  const { success, error: showError } = useMessage();
+
+  const [activeTab, setActiveTab] = useState('login');
+  const [registerStep, setRegisterStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
   // Login Form State
   const [loginData, setLoginData] = useState({
@@ -31,109 +34,75 @@ const FacultyAuth = () => {
   // OTP State
   const [otp, setOtp] = useState('');
 
-  // Handle Login
+  /* ---------------- LOGIN ---------------- */
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
     setIsLoading(true);
 
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...loginData,
-          expectedRole: 'professor',
-        }),
-      });
+    const result = await login(
+      loginData.email,
+      loginData.password,
+      'professor'
+    );
 
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/faculty/dashboard');
-      } else {
-        setError(data.message);
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (result.success) {
+      success('Welcome back!', `Logged in as ${result.user.name}`);
+      navigate('/faculty/dashboard');
+    } else {
+      showError('Login Failed', result.error);
     }
+
+    setIsLoading(false);
   };
 
-  // Handle Send OTP
+  /* ---------------- SEND OTP ---------------- */
   const handleSendOTP = async (e) => {
     e.preventDefault();
-    setError('');
 
-    // Validate passwords match
     if (registerData.password !== registerData.confirmPassword) {
-      setError('Passwords do not match');
+      showError('Validation Error', 'Passwords do not match');
       return;
     }
 
     setIsLoading(true);
 
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/register/send-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: registerData.name,
-          email: registerData.email,
-          password: registerData.password,
-          department: registerData.department,
-          designation: registerData.designation,
-        }),
-      });
+    const result = await sendOTP({
+      name: registerData.name,
+      email: registerData.email,
+      password: registerData.password,
+      department: registerData.department,
+      designation: registerData.designation,
+      role: 'professor',
+    });
 
-      const data = await response.json();
-
-      if (data.success) {
-        setSuccess('OTP sent to your email! Please check your inbox.');
-        setRegisterStep(2);
-      } else {
-        setError(data.message);
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (result.success) {
+      success('OTP Sent!', 'Please check your email for the verification code');
+      setRegisterStep(2);
+    } else {
+      showError('Registration Failed', result.error);
     }
+
+    setIsLoading(false);
   };
 
-  // Handle Verify OTP
+  /* ---------------- VERIFY OTP ---------------- */
   const handleVerifyOTP = async (e) => {
     e.preventDefault();
-    setError('');
     setIsLoading(true);
 
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/register/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: registerData.email,
-          otp: otp,
-        }),
-      });
+    const result = await verifyOTP(registerData.email, otp);
 
-      const data = await response.json();
-
-      if (data.success) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/faculty/dashboard');
-      } else {
-        setError(data.message);
-      }
-    } catch (err) {
-      setError('Network error. Please try again.');
-    } finally {
-      setIsLoading(false);
+    if (result.success) {
+      success(
+        'Registration Successful!',
+        `Welcome to Faculty Connect, ${result.user.name}!`
+      );
+      navigate('/faculty/dashboard');
+    } else {
+      showError('Verification Failed', result.error);
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -185,8 +154,6 @@ const FacultyAuth = () => {
               <button
                 onClick={() => {
                   setActiveTab('login');
-                  setError('');
-                  setSuccess('');
                 }}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${
                   activeTab === 'login'
@@ -200,8 +167,6 @@ const FacultyAuth = () => {
                 onClick={() => {
                   setActiveTab('register');
                   setRegisterStep(1);
-                  setError('');
-                  setSuccess('');
                 }}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${
                   activeTab === 'register'

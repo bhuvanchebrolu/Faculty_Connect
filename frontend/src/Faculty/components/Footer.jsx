@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Footer = () => {
+const FacultyFooter = () => {
   return (
     <footer className="bg-gray-800 text-white mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -35,17 +35,32 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-3">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <a href="https://www.nitt.edu" className="text-gray-300 hover:text-white text-sm transition-colors">
+                <a 
+                  href="https://www.nitt.edu" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white text-sm transition-colors"
+                >
                   NITT Main Website
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white text-sm transition-colors">
+                <a 
+                  href="https://www.nitt.edu/home/academics/calendar/" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white text-sm transition-colors"
+                >
                   Academic Calendar
                 </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white text-sm transition-colors">
+                <a 
+                  href="https://webmail.nitt.edu" 
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white text-sm transition-colors"
+                >
                   Webmail
                 </a>
               </li>
@@ -65,4 +80,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default FacultyFooter;
