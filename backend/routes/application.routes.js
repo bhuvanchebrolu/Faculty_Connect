@@ -20,7 +20,7 @@ router.post(
 router.get(
   "/",
   authenticate,
-  authorizeRole("student"),
+  authorizeRole("professor"),
   getMyApplications
 );
 

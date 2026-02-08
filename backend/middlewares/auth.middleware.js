@@ -10,6 +10,7 @@ import asyncHandler from "../utils/asyncHandler.js";
  */
 const authenticate = asyncHandler(async (req, res, next) => {
   let token;
+  console.log("AUTH HEADER:", req.headers.authorization);
 
   if (
     req.headers.authorization &&
@@ -28,6 +29,8 @@ const authenticate = asyncHandler(async (req, res, next) => {
 
     // fetch user (exclude password)
     const user = await User.findById(decoded.id).select("-password");
+    // console.log("DECODED:", decoded);
+    // console.log("FOUND USER:", user);
 
     if (!user) {
       throw new ApiError(401, "User not found. Token invalid.");
