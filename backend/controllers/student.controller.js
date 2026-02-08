@@ -29,7 +29,7 @@ const uploadResume = asyncHandler(async (req, res) => {
 //get all professors
 const getAllProfessors = asyncHandler(async (req, res) => {
   
-  const filter = { role: "professor" };
+  const filter = { role: "student" };
 
   if (req.query.search) {
     const regex = new RegExp(req.query.search, "i");

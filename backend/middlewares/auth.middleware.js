@@ -10,7 +10,7 @@ import asyncHandler from "../utils/asyncHandler.js";
  */
 const authenticate = asyncHandler(async (req, res, next) => {
   let token;
-  console.log("AUTH HEADER:", req.headers.authorization);
+  // console.log("AUTH HEADER:", req.headers.authorization);
 
   if (
     req.headers.authorization &&
