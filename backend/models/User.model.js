@@ -97,6 +97,38 @@ userSchema.index(
   }
 );
 
+// ─── Pre-save: hash password before storing ────────────────────────────────
+userSchema.pre("save", async function (next) {
+  // Only re-hash if the password field was actually changed
+  if (!this.isModified("password")) return next();
+
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Instance method: compare raw password against the stored hash ─────────
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+// ─── Virtual: full display name (can extend later with title for professors)
+userSchema.virtual("displayName").get(function () {
+  if (this.role === "professor" && this.designation) {
+    return `${this.designation} ${this.name}`;
+  }
+  return this.name;
+});
+
+// Make virtuals appear in JSON / toObject output
+userSchema.set("toJSON", { virtuals: true });
+userSchema.set("toObject", { virtuals: true });
+
+
 const User = mongoose.model("User", userSchema);
 
 export default User;
