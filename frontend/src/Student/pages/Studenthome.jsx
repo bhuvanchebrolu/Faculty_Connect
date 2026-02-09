@@ -1,80 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { useMessage } from '../../contexts/MessageContext';
 import Header from '../components/StudentHeader';
 import Footer from '../components/StudentFooter';
 import FacultyCard from '../components/ProfessorCard';
 
 const StudentHome = () => {
   const navigate = useNavigate();
+  const { apiRequest } = useAuth();
+  const { error: showError } = useMessage();
+
+  const [facultyData, setFacultyData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Temporary data - replace with API call later
-  const facultyData = [
-    {
-      id: 1,
-      name: 'Dr. Ramesh Kumar',
-      department: 'Computer Science and Engineering',
-      availableProjects: 3,
-    },
-    {
-      id: 2,
-      name: 'Dr. Priya Sharma',
-      department: 'Electronics and Communication Engineering',
-      availableProjects: 2,
-    },
-    {
-      id: 3,
-      name: 'Dr. Arun Krishnan',
-      department: 'Mechanical Engineering',
-      availableProjects: 3,
-    },
-    {
-      id: 4,
-      name: 'Dr. Lakshmi Venkat',
-      department: 'Civil Engineering',
-      availableProjects: 2,
-    },
-    {
-      id: 5,
-      name: 'Dr. Suresh Babu',
-      department: 'Electrical and Electronics Engineering',
-      availableProjects: 3,
-    },
-    {
-      id: 6,
-      name: 'Dr. Meena Iyer',
-      department: 'Computer Science and Engineering',
-      availableProjects: 2,
-    },
-    {
-      id: 7,
-      name: 'Dr. Vijay Anand',
-      department: 'Chemical Engineering',
-      availableProjects: 2,
-    },
-    {
-      id: 8,
-      name: 'Dr. Kavitha Reddy',
-      department: 'Electronics and Communication Engineering',
-      availableProjects: 3,
-    },
-  ];
+  // Fetch professors from API
+  const fetchProfessors = async () => {
+    // setIsLoading(true);
 
+    try {
+      const query = searchQuery
+        ? `/api/students/professors?search=${encodeURIComponent(searchQuery)}`
+        : '/api/students/professors';
+
+      const result = await apiRequest(query);
+
+      console.log('FETCH PROFESSORS RESULT:', result);
+
+      if (result.success) {
+        // Handle 200 or 304 properly
+        const professors = result.data?.data || [];
+        setFacultyData(professors);
+      } else {
+        showError('Error', result.error || 'Failed to load professors');
+        setFacultyData([]);
+      }
+    } catch (err) {
+      showError('Error', err.message || 'Failed to load professors');
+      setFacultyData([]);
+    } finally {
+      console.log("Finally");
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch professors whenever the search query changes
+  useEffect(() => {
+    fetchProfessors();
+  }, [searchQuery]);
+
+  // Generate departments dynamically from data
   const departments = [
     'All Departments',
-    'Computer Science and Engineering',
-    'Electronics and Communication Engineering',
-    'Mechanical Engineering',
-    'Civil Engineering',
-    'Electrical and Electronics Engineering',
-    'Chemical Engineering',
+    ...new Set(facultyData.map((f) => f.department).filter(Boolean)),
   ];
 
   const filteredFaculty = facultyData.filter((faculty) => {
-    const matchesDept = selectedDepartment === 'All Departments' || faculty.department === selectedDepartment;
-    const matchesSearch = faculty.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         faculty.department.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesDept =
+      selectedDepartment === 'All Departments' || faculty.department === selectedDepartment;
+
+    const matchesSearch =
+      faculty.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      faculty.department?.toLowerCase().includes(searchQuery.toLowerCase());
+
     return matchesDept && matchesSearch;
   });
 
@@ -89,18 +79,21 @@ const StudentHome = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-      
+
       <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Academic Internship Portal</h1>
-          <p className="text-gray-600">Browse research projects and connect with faculty members</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Academic Internship Portal
+          </h1>
+          <p className="text-gray-600">
+            Browse research projects and connect with faculty members
+          </p>
         </div>
 
-        {/* Filters Section */}
+        {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Department Filter */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Filter by Department
@@ -118,30 +111,22 @@ const StudentHome = () => {
               </select>
             </div>
 
-            {/* Search */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search Projects
+                Search Professors
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by keyword, professor, or project title"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                />
-              </div>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name or department"
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+              />
             </div>
           </div>
         </div>
 
-        {/* Faculty Members Section */}
+        {/* Faculty Section */}
         <div className="mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             Faculty Members
@@ -151,18 +136,30 @@ const StudentHome = () => {
           </h2>
         </div>
 
-        {/* Faculty Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {filteredFaculty.map((faculty) => (
-            <FacultyCard
-              key={faculty.id}
-              faculty={faculty}
-              onViewProjects={handleViewProjects}
-            />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600 mb-4"></div>
+            <p className="text-gray-600">Loading professors...</p>
+          </div>
+        ) : filteredFaculty.length === 0 ? (
+          <div className="text-center py-12 text-gray-500">No professors found.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {filteredFaculty.map((faculty) => (
+              <FacultyCard
+                key={faculty._id}
+                faculty={{
+                  id: faculty._id,
+                  name: faculty.displayName || faculty.name,
+                  department: faculty.department,
+                  availableProjects: faculty.availableProjects || 0,
+                }}
+                onViewProjects={handleViewProjects}
+              />
+            ))}
+          </div>
+        )}
 
-        {/* View All Professors Button */}
         <div className="flex justify-center mt-8">
           <button
             onClick={handleViewAllProfessors}

@@ -43,7 +43,7 @@ function App() {
             {/* PUBLIC ROUTES */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/student/auth" element={<StudentAuth />} />
-            <Route path="/faculty/auth" element={<FacultyAuth />} />
+            <Route path="/professor/auth" element={<FacultyAuth />} />
 
             {/* STUDENT ROUTES */}
             <Route

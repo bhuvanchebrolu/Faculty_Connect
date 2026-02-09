@@ -21,53 +21,63 @@ const BrowseProjects = () => {
   const departments = ['all', ...new Set(professors.map(p => p.department).filter(Boolean))];
 
   useEffect(() => {
-    fetchProfessorsAndProjects();
-  }, []);
-
-  const fetchProfessorsAndProjects = async () => {
-    setIsLoading(true);
-
-    // Fetch all professors
-    const profsResult = await apiRequest('/api/students/professors');
-    
-    if (profsResult.success) {
-      const profsList = profsResult.data.data;
-      setProfessors(profsList);
-
-      // Fetch all projects to count per professor
-      const projectsResult = await apiRequest('/api/projects');
-      
-      if (projectsResult.success) {
-        const projects = projectsResult.data.data;
-        
-        // Count projects per professor (only open projects)
-        const counts = {};
-        projects.forEach(project => {
-          if (project.status === 'open' && project.createdBy) {
-            const profId = project.createdBy._id || project.createdBy;
-            counts[profId] = (counts[profId] || 0) + 1;
-          }
+    const fetchProfessorsAndProjects = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch professors
+        const profsResult = await apiRequest('/api/students/professors', {
+          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
         });
-        
-        setProjectCounts(counts);
-      }
-    } else {
-      showError('Error', 'Failed to load professors');
-    }
 
-    setIsLoading(false);
-  };
+        if (profsResult.success) {
+          const profsList = profsResult.data.data || [];
+          setProfessors(profsList);
+        } else {
+          showError('Error', 'Failed to load professors');
+          setProfessors([]);
+        }
+
+        // Fetch projects
+        const projectsResult = await apiRequest('/api/projects', {
+          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+        });
+
+        if (projectsResult.success) {
+          const projects = projectsResult.data.data || [];
+          const counts = {};
+          projects.forEach(project => {
+            if (project.status === 'open' && project.createdBy) {
+              const profId = project.createdBy._id || project.createdBy;
+              counts[profId] = (counts[profId] || 0) + 1;
+            }
+          });
+          setProjectCounts(counts);
+        } else {
+          showError('Error', 'Failed to load projects');
+          setProjectCounts({});
+        }
+      } catch (err) {
+        showError('Error', err.message || 'Failed to fetch data');
+        setProfessors([]);
+        setProjectCounts({});
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfessorsAndProjects();
+  }, [apiRequest, showError]);
 
   // Filter professors
   const filteredProfessors = professors.filter(prof => {
     const matchesDepartment = departmentFilter === 'all' || prof.department === departmentFilter;
-    const matchesSearch = !searchTerm || 
+    const matchesSearch = !searchTerm ||
       prof.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       prof.department?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Only show professors with projects
+
+    // Show professors with at least 1 open project
     const hasProjects = projectCounts[prof._id] > 0;
-    
+
     return matchesDepartment && matchesSearch && hasProjects;
   });
 
@@ -150,7 +160,6 @@ const BrowseProjects = () => {
             </div>
           ) : (
             <>
-              {/* Professor Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredProfessors.slice(0, 8).map((professor) => (
                   <ProfessorCard
@@ -161,7 +170,6 @@ const BrowseProjects = () => {
                 ))}
               </div>
 
-              {/* View All Professors Button */}
               {filteredProfessors.length > 8 && (
                 <div className="mt-8 text-center">
                   <button

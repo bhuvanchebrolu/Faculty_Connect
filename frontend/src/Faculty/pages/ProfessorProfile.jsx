@@ -24,8 +24,11 @@ const ProfessorProfile = () => {
   });
 
   useEffect(() => {
+  if (user) {
     fetchProjects();
-  }, []);
+  }
+}, [user]);
+
 
   const fetchProjects = async () => {
     setIsLoading(true);
@@ -40,7 +43,7 @@ const ProfessorProfile = () => {
       for (const project of projectsList) {
         const appsResult = await apiRequest(`/api/professors/projects/${project._id}/applications`);
         if (appsResult.success) {
-          const apps = appsResult.data.data;
+          const apps = appsResult.data.data.data;
           counts[project._id] = {
             total: apps.length,
             pending: apps.filter(a => a.status === 'pending').length,

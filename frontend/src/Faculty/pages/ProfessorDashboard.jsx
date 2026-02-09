@@ -30,16 +30,23 @@ const ProfessorDashboard = () => {
 
       // Fetch applications for each project
       for (const project of projects) {
-        const appsResult = await apiRequest(`/api/professors/projects/${project._id}/applications`);
-        if (appsResult.success) {
-          const appsWithProject = appsResult.data.data.map(app => ({
-            ...app,
-            projectTitle: project.title,
-            projectId: project._id,
-          }));
-          allApps.push(...appsWithProject);
-        }
+      const appsResult = await apiRequest(
+        `/api/professors/projects/${project._id}/applications`
+      );
+
+      const applications = appsResult?.data?.data?.data;
+
+      if (appsResult.success && Array.isArray(applications)) {
+        const appsWithProject = applications.map(app => ({
+          ...app,
+          projectTitle: project.title,
+          projectId: project._id,
+        }));
+
+        allApps.push(...appsWithProject);
       }
+    }
+
 
       setApplications(allApps);
     } else {
