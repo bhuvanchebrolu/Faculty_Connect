@@ -87,8 +87,8 @@ const FacultyProfile = () => {
   }, [user, apiRequest, error]);
 
   const handleEditProject = (projectId) => {
-    navigate(`/faculty/edit-project/${projectId}`);
-  };
+    navigate(`/professor/projects/${projectId}/edit`);
+  };  
 
   const handleDeleteProject = async (projectId) => {
     if (window.confirm('Are you sure you want to delete this project? This action cannot be undone.')) {
@@ -187,6 +187,7 @@ const FacultyProfile = () => {
                     key={project.id}
                     project={project}
                     onEdit={handleEditProject}
+
                     onDelete={handleDeleteProject}
                   />
                 ))}

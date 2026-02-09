@@ -20,9 +20,10 @@ const getAllProjects=asyncHandler(async(req,res)=>{
         filter.status=statusParams;
     }
 
-    if(req.query.domain){
-        filter.domain=req.status.domain.trim();
+    if (req.query.domain) {
+        filter.domain = req.status.domain.trim();
     }
+
 
     if(req.query.search){
         const regex=new RegExp(req.query.search,"i");

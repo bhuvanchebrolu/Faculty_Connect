@@ -33,6 +33,7 @@ import AdminDashboard from './admin/pages/AdminDashboard';
 import AdminStudents from './admin/pages/AdminStudents';
 import AdminProfessors from './admin/pages/AdminProfessors';
 import AdminProjects from './admin/pages/AdminProjects';
+import AdminAuth from './Home/pages/AdminAuth';
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/student/auth" element={<StudentAuth />} />
             <Route path="/professor/auth" element={<FacultyAuth />} />
+            <Route path="/admin/auth" element={<AdminAuth />} />
 
             {/* STUDENT ROUTES */}
             <Route

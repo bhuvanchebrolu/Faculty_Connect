@@ -12,4 +12,4 @@ router.use(authenticate);
 router.get("/",getAllProjects);
 router.get("/:id",getProjectById);
 
-export default Router;
+export default router;
