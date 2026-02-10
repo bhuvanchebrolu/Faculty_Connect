@@ -121,6 +121,21 @@ const getUserById = asyncHandler(async (req, res) => {
   });
 });
 
+const getPendingApplications = asyncHandler(async (req, res) => {
+  const pendingApplications = await Application.find(
+    { status: "pending" },
+    "applicantName rollNumber branch year cgpa project status resumeUrl createdAt"
+  )
+    .populate("project", "title")
+    .sort({ createdAt: -1 })
+    .lean();
+
+  res.status(200).json({
+    success: true,
+    count: pendingApplications.length,
+    data: pendingApplications,
+  });
+});
 
 const updateUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -419,6 +434,75 @@ const getAnalytics = asyncHandler(async (req, res) => {
   });
 });
 
+const updateApplicationStatus = asyncHandler(async (req, res) => {
+  const { applicationId } = req.params;
+  const { status, feedback } = req.body;
+
+  if (!status || !["approved", "rejected"].includes(status)) {
+    throw new ApiError(400, "status must be 'approved' or 'rejected'");
+  }
+
+  const application = await Application.findById(applicationId)
+    .populate("project", "createdBy title")
+    .populate("student", "name email");
+
+  if (!application) {
+    throw new ApiError(404, "Application not found");
+  }
+
+  if (req.user.role !== "admin") {
+    throw new ApiError(
+      403,
+      "You are not admin to accept or reject",
+    );
+  }
+
+  if (application.status !== "pending") {
+    throw new ApiError(
+      400,
+      `Application is already "${application.status}" — only pending applications can be approved or rejected`,
+    );
+  }
+
+  application.status = status;
+  if (feedback) {
+    application.feedback = feedback;
+  }
+  await application.save();
+
+  //  if (!application.emailSentToStudent) {
+  //     const subject =
+  //       status === "approved"
+  //         ? ` Application Approved – ${application.project.title}`
+  //         : `Application Rejected – ${application.project.title}`;
+
+  //     const body =
+  //       status === "approved"
+  //         ? `Hi ${application.student.name},\n\nYour application for the project "${application.project.title}" has been approved. Please reach out to your professor for next steps.\n\nBest regards,\nFaculty Connect`
+  //         : `Hi ${application.student.name},\n\nYour application for the project "${application.project.title}" has been rejected.${
+  //             feedback ? `\n\nFeedback: ${feedback}` : ""
+  //           }\n\nBest regards,\nFaculty Connect`;
+
+  //     // sendEmail is fire-and-forget here — we don't await it so a mail-server
+  //     // hiccup doesn't break the approve/reject response. It runs in the background.
+  //     sendEmail({
+  //       to: application.student.email,
+  //       subject,
+  //       body,
+  //     });
+
+  //     // mark the flag so we never send this email again for this status
+  //     await Application.findByIdAndUpdate(applicationId, {
+  //       emailSentToStudent: true,
+  //     });
+  //   }
+
+  res.status(200).json({
+    success: true,
+    message: `Application ${status === "approved" ? "approved" : "rejected"} successfully`,
+    data: application,
+  });
+});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // EXPORTS
@@ -438,4 +522,6 @@ export {
 
   // Analytics
   getAnalytics,
+  getPendingApplications,
+  updateApplicationStatus,
 };

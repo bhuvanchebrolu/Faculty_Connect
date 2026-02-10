@@ -248,6 +248,150 @@ const updateProfessorProfile = asyncHandler(async (req, res) => {
     data: professor,
   });
 });
+const updateProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const professorId = req.user.id;
+    
+    const {
+      title,
+      description,
+      domain,
+      skillsRequired,
+      maxStudents,
+      deadline,
+      attachmentUrl,
+      cvRequired
+    } = req.body;
+
+    // Find project and verify ownership
+    const project = await Project.findOne({
+      _id: projectId,
+      createdBy: professorId
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found or you don't have permission to update it"
+      });
+    }
+
+    // Update project fields
+    if (title) project.title = title;
+    if (description) project.description = description;
+    if (domain) project.domain = domain;
+    if (skillsRequired) project.skillsRequired = skillsRequired;
+    if (maxStudents !== undefined) project.maxStudents = maxStudents;
+    if (deadline) project.deadline = deadline;
+    if (attachmentUrl !== undefined) project.attachmentUrl = attachmentUrl;
+    if (cvRequired !== undefined) project.cvRequired = cvRequired;
+
+    await project.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Project updated successfully",
+      data: project
+    });
+  } catch (error) {
+    console.error("Error updating project:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update project",
+      error: error.message
+    });
+  }
+};
+
+
+const deleteProject = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const professorId = req.user.id;
+
+    // Find project and verify ownership
+    const project = await Project.findOne({
+      _id: projectId,
+      createdBy: professorId
+    });
+
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found or you don't have permission to delete it"
+      });
+    }
+
+    // Delete all applications for this project first
+    await Application.deleteMany({ projectId: projectId });
+
+    // Delete the project
+    await Project.findByIdAndDelete(projectId);
+
+    res.status(200).json({
+      success: true,
+      message: "Project and all associated applications deleted successfully"
+    });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete project",
+      error: error.message
+    });
+  }
+};
+const updateProjectStatus = asyncHandler(async (req, res) => {
+  const { projectId } = req.params;
+  const { status } = req.body;
+
+  // --- validate status -----------------------------------------------
+  const allowedStatuses = ["open", "closed", "completed"];
+  if (!status || !allowedStatuses.includes(status)) {
+    throw new ApiError(
+      400,
+      "status must be one of: open, closed, completed"
+    );
+  }
+
+  // --- find project + ownership check --------------------------------
+  const project = await Project.findOne({
+    _id: projectId,
+    createdBy: req.user._id,
+  });
+
+  if (!project) {
+    throw new ApiError(
+      404,
+      "Project not found or you do not own this project"
+    );
+  }
+
+  // --- prevent invalid transitions -----------------------------------
+  if (project.status === "completed") {
+    throw new ApiError(
+      400,
+      "Completed projects cannot be reopened or modified"
+    );
+  }
+
+
+  // --- no-op check ----------------------------------------------------
+  if (project.status === status) {
+    throw new ApiError(400, `Project is already "${status}"`);
+  }
+
+  // --- update ---------------------------------------------------------
+  project.status = status;
+  await project.save();
+
+  res.status(200).json({
+    success: true,
+    message: `Project status updated to "${status}" successfully`,
+    data: project,
+  });
+});
 
 export {
   createProject,
@@ -257,4 +401,7 @@ export {
   getAllStudents,
   getProfessorProfile,
   updateProfessorProfile,
+  updateProject,
+  deleteProject,
+  updateProjectStatus,
 };

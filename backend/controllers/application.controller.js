@@ -53,7 +53,7 @@ const createApplication = asyncHandler(async (req, res) => {
   }
 
   // --- validate email format --------------------------------------------------
-  const emailRegex = /^[a-zA-Z0-9._-]+@nitt\.edu\.in$/;
+  const emailRegex = /^[a-zA-Z0-9._-]+@nitt\.edu$/;
   if (!emailRegex.test(applicantEmail)) {
     throw new ApiError(400, "Email must be a valid @nitt.edu.in address");
   }

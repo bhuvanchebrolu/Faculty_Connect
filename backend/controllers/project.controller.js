@@ -21,7 +21,7 @@ const getAllProjects=asyncHandler(async(req,res)=>{
     }
 
     if (req.query.domain) {
-        filter.domain = req.status.domain.trim();
+        filter.domain = req.query.domain.trim();
     }
 
 

@@ -17,6 +17,8 @@ import {
   getAllProjects,
   deleteProject,
   getAnalytics,
+  getPendingApplications,
+  updateApplicationStatus,
 } from "../controllers/admin.controller.js";
 
 router.use(authenticate, authorizeRole("admin"));
@@ -51,13 +53,15 @@ router.get("/projects", getAllProjects);
 
 // DELETE /api/admin/projects/:id        
 router.delete("/projects/:id", deleteProject);
+router.put("/applications/:applicationId", updateApplicationStatus);
 
 
 // ═════════════════════════════════════════════════════════════════════════════
 // ANALYTICS
-// ═════════════════════════════════════════════════════════════════════════════
+// ════════════
 
 // GET    /api/admin/analytics            
 router.get("/analytics", getAnalytics);
+router.get("/applications/pending", getPendingApplications);
 
 export default router;

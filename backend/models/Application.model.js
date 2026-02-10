@@ -158,7 +158,7 @@ applicationSchema.index(
   { student: 1, project: 1 },
   { unique: true }
 );
-
+applicationSchema.index({ status: 1, createdAt: -1 });
 // ─── Index for professor's dashboard: quickly fetch apps for a project ──────
 applicationSchema.index({ project: 1, status: 1 });
 
@@ -252,7 +252,6 @@ applicationSchema.pre("save", async function (next) {
       this.emailSentToStudent = false;
     }
 
-    next();
   } catch (err) {
     next(err);
   }
