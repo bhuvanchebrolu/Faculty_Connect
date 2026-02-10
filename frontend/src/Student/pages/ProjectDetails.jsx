@@ -86,7 +86,7 @@ const ProjectDetails = () => {
 
       if (result.success) {
         success('Application Submitted!', 'Your application has been sent to the professor');
-        navigate('/student/applications');
+        navigate('/student/browse');
       } else {
         showError('Submission Failed', result.error);
       }

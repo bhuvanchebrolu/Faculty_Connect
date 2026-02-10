@@ -28,7 +28,7 @@ const BrowseProjects = () => {
         const profsResult = await apiRequest('/api/students/professors', {
           headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
         });
-
+        console.log("DEBUG professorsResult:", profsResult);
         if (profsResult.success) {
           const profsList = profsResult.data.data || [];
           setProfessors(profsList);
@@ -41,7 +41,8 @@ const BrowseProjects = () => {
         const projectsResult = await apiRequest('/api/projects', {
           headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
         });
-
+        console.log("DEBUG projectsResult:", projectsResult);
+        console.log(projectsResult);
         if (projectsResult.success) {
           const projects = projectsResult.data.data || [];
           const counts = {};
@@ -80,6 +81,7 @@ const BrowseProjects = () => {
 
     return matchesDepartment && matchesSearch && hasProjects;
   });
+  console.log("DEBUG filteredProfessors:", filteredProfessors);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

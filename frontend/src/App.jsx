@@ -34,6 +34,7 @@ import AdminStudents from './admin/pages/AdminStudents';
 import AdminProfessors from './admin/pages/AdminProfessors';
 import AdminProjects from './admin/pages/AdminProjects';
 import AdminAuth from './Home/pages/AdminAuth';
+import PendingApplications from './admin/pages/PendingApplications';
 
 function App() {
   return (
@@ -153,6 +154,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/applications"
+              element={
+                <ProtectedRoute allowedRoles={['admin']}>
+                  <PendingApplications />
                 </ProtectedRoute>
               }
             />
