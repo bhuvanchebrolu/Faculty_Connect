@@ -178,7 +178,7 @@ Please log in to Faculty Connect to review the complete application.
 
 Best regards,
 Faculty Connect Team`;
-
+  console.log("email sent" , body);
   return sendEmail({ to: email, subject, body });
 };
 

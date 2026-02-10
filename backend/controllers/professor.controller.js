@@ -4,7 +4,7 @@ import User from "../models/User.model.js";
 
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
-
+import { sendApplicationStatusEmail } from "../utils/sendEmail.js";
 //create project
 const createProject = asyncHandler(async (req, res) => {
   const {
@@ -149,7 +149,9 @@ const updateApplicationStatus = asyncHandler(async (req, res) => {
     application.feedback = feedback;
   }
   await application.save();
-
+  if (!application.emailSentToStudent){
+    sendApplicationStatusEmail(application.applicantEmail, application.applicantName, application.project.title , status, feedback);
+  }
   //  if (!application.emailSentToStudent) {
   //     const subject =
   //       status === "approved"

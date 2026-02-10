@@ -4,7 +4,7 @@ import Project from "../models/Project.model.js";
 import User from "../models/User.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
-
+import {sendNewApplicationEmail}  from "../utils/sendEmail.js"
 // const sendEmail    = require("../utils/sendEmail");
 
 //create application
@@ -98,6 +98,18 @@ const createApplication = asyncHandler(async (req, res) => {
     githubUrl: githubUrl || null,
     linkedinUrl: linkedinUrl || null,
   });
+  const applicantData ={
+    name:application.applicantName,
+    email:application.applicantEmail,
+    phone:application.applicantPhone,
+    rollNumber:application.rollNumber,
+    year:application.year,
+    branch:application.branch,
+    cgpa:application.cgpa
+  }
+  if (!application.emailSentToProfessor) {
+    sendNewApplicationEmail(application.applicantEmail , project.createdBy.name, project.title, applicantData);
+  }
 //   if (!application.emailSentToProfessor) {
 //     const subject = `📩 New Application – ${project.title}`;
     
