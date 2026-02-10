@@ -8,11 +8,12 @@ import FacultyFooter from '../components/Footer';
 const ProfessorDashboard = () => {
   const navigate = useNavigate();
   const { apiRequest } = useAuth();
-  const { error: showError } = useMessage();
+  const { error: showError, success: showSuccess } = useMessage();
 
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [processingId, setProcessingId] = useState(null);
 
   useEffect(() => {
     fetchAllApplications();
@@ -30,23 +31,16 @@ const ProfessorDashboard = () => {
 
       // Fetch applications for each project
       for (const project of projects) {
-      const appsResult = await apiRequest(
-        `/api/professors/projects/${project._id}/applications`
-      );
-
-      const applications = appsResult?.data?.data?.data;
-
-      if (appsResult.success && Array.isArray(applications)) {
-        const appsWithProject = applications.map(app => ({
-          ...app,
-          projectTitle: project.title,
-          projectId: project._id,
-        }));
-
-        allApps.push(...appsWithProject);
+        const appsResult = await apiRequest(`/api/professors/projects/${project._id}/applications`);
+        if (appsResult.success) {
+          const appsWithProject = appsResult.data.data.data.map(app => ({
+            ...app,
+            projectTitle: project.title,
+            projectId: project._id,
+          }));
+          allApps.push(...appsWithProject);
+        }
       }
-    }
-
 
       setApplications(allApps);
     } else {
@@ -54,6 +48,39 @@ const ProfessorDashboard = () => {
     }
 
     setIsLoading(false);
+  };
+
+  const handleApplicationStatus = async (applicationId, status, e) => {
+    e.stopPropagation(); // Prevent any row click events
+    
+    const confirmMessage = status === 'approved' 
+      ? 'Are you sure you want to approve this application?'
+      : 'Are you sure you want to reject this application?';
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setProcessingId(applicationId);
+
+    try {
+      const result = await apiRequest(`/api/professors/applications/${applicationId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+
+      if (result.success) {
+        showSuccess('Success', `Application ${status} successfully`);
+        // Refresh applications
+        await fetchAllApplications();
+      } else {
+        showError('Error', result.message || `Failed to ${status} application`);
+      }
+    } catch (error) {
+      showError('Error', `Failed to ${status} application`);
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   // Filter applications by search
@@ -77,6 +104,19 @@ const ProfessorDashboard = () => {
     if (!text) return '';
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
+  };
+
+  const getStatusBadgeColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (
@@ -199,6 +239,11 @@ const ProfessorDashboard = () => {
                 </button>
               )}
             </div>
+            {searchTerm && (
+              <p className="mt-2 text-sm text-gray-600">
+                Found <span className="font-semibold">{filteredApplications.length}</span> result{filteredApplications.length !== 1 ? 's' : ''}
+              </p>
+            )}
           </div>
 
           {/* Applications Table */}
@@ -242,6 +287,9 @@ const ProfessorDashboard = () => {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       CV
                     </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -253,6 +301,11 @@ const ProfessorDashboard = () => {
                           <div className="text-sm text-gray-600">{app.rollNumber}</div>
                           <div className="text-sm text-gray-600">{app.applicantEmail}</div>
                           <div className="text-sm text-gray-600">{app.applicantPhone}</div>
+                          <div className="mt-2">
+                            <span className={`inline-block px-2 py-1 text-xs font-medium rounded ${getStatusBadgeColor(app.status)}`}>
+                              {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                            </span>
+                          </div>
                           <div className="mt-2 text-xs text-gray-500">
                             Applied to: <span className="font-medium text-gray-700">{app.projectTitle}</span>
                           </div>
@@ -290,6 +343,48 @@ const ProfessorDashboard = () => {
                           </a>
                         ) : (
                           <span className="text-sm text-gray-400">No CV</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">
+                        {app.status === 'pending' ? (
+                          <div className="flex flex-col space-y-2">
+                            <button
+                              onClick={(e) => handleApplicationStatus(app._id, 'approved', e)}
+                              disabled={processingId === app._id}
+                              className="flex items-center justify-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {processingId === app._id ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  Approve
+                                </>
+                              )}
+                            </button>
+                            <button
+                              onClick={(e) => handleApplicationStatus(app._id, 'rejected', e)}
+                              disabled={processingId === app._id}
+                              className="flex items-center justify-center px-3 py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              {processingId === app._id ? (
+                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                  </svg>
+                                  Reject
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-gray-500 italic">
+                            Already {app.status}
+                          </span>
                         )}
                       </td>
                     </tr>

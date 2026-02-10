@@ -290,7 +290,7 @@ const EditProject = () => {
         </form>
       </main>
 
-      <Footer />
+      <FacultyFooter />
     </div>
   );
 };

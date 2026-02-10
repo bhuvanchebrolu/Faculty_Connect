@@ -30,7 +30,7 @@ const ApprovedStudents = () => {
       for (const project of projects) {
         const appsResult = await apiRequest(`/api/professors/projects/${project._id}/applications`);
         if (appsResult.success) {
-          const approvedApps = appsResult.data.data
+          const approvedApps = appsResult.data.data.data
             .filter(app => app.status === 'approved')
             .map(app => ({
               ...app,

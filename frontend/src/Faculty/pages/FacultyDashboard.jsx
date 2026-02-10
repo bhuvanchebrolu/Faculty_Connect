@@ -7,20 +7,20 @@ import Footer from '../../Student/components/Footer';
 
 const FacultyDashboard = () => {
   const navigate = useNavigate();
-  const { error: showError } = useMessage();
+  const { error: showError, success: showSuccess } = useMessage();
   
   const [activeTab, setActiveTab] = useState('all');
   const [applications, setApplications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const { apiRequest, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
+  const [processingId, setProcessingId] = useState(null);
 
   useEffect(() => {
-  if (!isLoading && isAuthenticated) {
-    fetchApplications();
-  }
-}, [isLoading, isAuthenticated]);
-
+    if (!isAuthLoading && isAuthenticated) {
+      fetchApplications();
+    }
+  }, [isAuthLoading, isAuthenticated]);
 
   const fetchApplications = async () => {
     setIsLoading(true);
@@ -37,7 +37,7 @@ const FacultyDashboard = () => {
         const appsResult = await apiRequest(`/api/professors/projects/${project._id}/applications`);
         if (appsResult.success) {
           // Add project title to each application
-          const appsWithProject = appsResult.data.map(app => ({
+          const appsWithProject = appsResult.data.data.map(app => ({
             ...app,
             projectTitle: project.title,
             projectId: project._id,
@@ -52,6 +52,39 @@ const FacultyDashboard = () => {
     }
     
     setIsLoading(false);
+  };
+
+  const handleApplicationStatus = async (applicationId, status, e) => {
+    e.stopPropagation(); // Prevent row click
+    
+    const confirmMessage = status === 'approved' 
+      ? 'Are you sure you want to approve this application?'
+      : 'Are you sure you want to reject this application?';
+    
+    if (!window.confirm(confirmMessage)) {
+      return;
+    }
+
+    setProcessingId(applicationId);
+
+    try {
+      const result = await apiRequest(`/api/professors/applications/${applicationId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+
+      if (result.success) {
+        showSuccess('Success', `Application ${status} successfully`);
+        // Refresh applications
+        await fetchApplications();
+      } else {
+        showError('Error', result.message || `Failed to ${status} application`);
+      }
+    } catch (error) {
+      showError('Error', `Failed to ${status} application`);
+    } finally {
+      setProcessingId(null);
+    }
   };
 
   const getFilteredApplications = () => {
@@ -264,6 +297,9 @@ const FacultyDashboard = () => {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         CV
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -326,6 +362,48 @@ const FacultyDashboard = () => {
                             </svg>
                             View
                           </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          {application.status === 'pending' ? (
+                            <div className="flex flex-col space-y-2" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                onClick={(e) => handleApplicationStatus(application._id, 'approved', e)}
+                                disabled={processingId === application._id}
+                                className="flex items-center justify-center px-3 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {processingId === application._id ? (
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                  <>
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Approve
+                                  </>
+                                )}
+                              </button>
+                              <button
+                                onClick={(e) => handleApplicationStatus(application._id, 'rejected', e)}
+                                disabled={processingId === application._id}
+                                className="flex items-center justify-center px-3 py-2 bg-red-600 text-white text-sm font-medium rounded hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {processingId === application._id ? (
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                  <>
+                                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                    Reject
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-500 italic">
+                              Already {application.status}
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}

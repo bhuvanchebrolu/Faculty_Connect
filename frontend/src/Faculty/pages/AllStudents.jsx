@@ -30,7 +30,7 @@ const AllStudents = () => {
       for (const project of projects) {
         const appsResult = await apiRequest(`/api/professors/projects/${project._id}/applications`);
         if (appsResult.success) {
-          const appsWithProject = appsResult.data.data.map(app => ({
+          const appsWithProject = appsResult.data.data.data.map(app => ({
             ...app,
             projectTitle: project.title,
             projectId: project._id,

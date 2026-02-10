@@ -30,7 +30,7 @@ const RejectedStudents = () => {
       for (const project of projects) {
         const appsResult = await apiRequest(`/api/professors/projects/${project._id}/applications`);
         if (appsResult.success) {
-          const rejectedApps = appsResult.data.data
+          const rejectedApps = appsResult.data.data.data
             .filter(app => app.status === 'rejected')
             .map(app => ({
               ...app,
