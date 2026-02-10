@@ -10,7 +10,7 @@ const EditProject = () => {
   const { projectId } = useParams();
   const { apiRequest } = useAuth();
   const { success, error: showError } = useMessage();
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,8 +39,8 @@ const EditProject = () => {
         title: project.title,
         description: project.description,
         domain: project.domain,
-        skillsRequired: Array.isArray(project.skillsRequired) 
-          ? project.skillsRequired.join(', ') 
+        skillsRequired: Array.isArray(project.skillsRequired)
+          ? project.skillsRequired.join(', ')
           : project.skillsRequired,
         maxStudents: project.maxStudents,
         deadline: new Date(project.deadline).toISOString().split('T')[0],
@@ -92,6 +92,28 @@ const EditProject = () => {
       showError('Error', 'Failed to update project. Please try again.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleMarkCompleted = async () => {
+    if (!window.confirm('Mark this project as completed? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const result = await apiRequest(`/api/professors/projects/${projectId}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'completed' }),
+      });
+
+      if (result.success) {
+        success('Project Completed', 'The project has been marked as completed');
+        navigate('/professor/profile');
+      } else {
+        showError('Failed', result.error || 'Unable to update project status');
+      }
+    } catch (err) {
+      showError('Error', 'Failed to mark project as completed');
     }
   };
 
@@ -268,6 +290,14 @@ const EditProject = () => {
               className="px-6 py-2 border border-red-300 text-red-600 font-medium rounded-md hover:bg-red-50 transition-colors disabled:opacity-50"
             >
               Delete Project
+            </button>
+            <button
+              type="button"
+              onClick={handleMarkCompleted}
+              disabled={isSubmitting}
+              className="px-6 py-2 border border-green-300 text-green-700 font-medium rounded-md hover:bg-green-50 transition-colors disabled:opacity-50"
+            >
+              Mark as Completed
             </button>
             <div className="flex space-x-4">
               <button
