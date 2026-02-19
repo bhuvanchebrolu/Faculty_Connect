@@ -325,7 +325,160 @@ const getCurrentUser = asyncHandler(async (req, res) => {
   });
 });
 
+// ═══════════════════════════════════════════════════════════════════════════
+// FORGOT PASSWORD FLOW
+// ═══════════════════════════════════════════════════════════════════════════
 
+/**
+ * Step 1: Send OTP for password reset
+ */
+const forgotPassword = asyncHandler(async (req, res) => {
+  const { email, role } = req.body;
+
+  // Validate required fields
+  if (!email || !role) {
+    throw new ApiError(400, "Email and role are required");
+  }
+
+  // Validate role
+  const allowedRoles = ["student", "professor", "admin"];
+  if (!allowedRoles.includes(role)) {
+    throw new ApiError(400, "Invalid role specified");
+  }
+
+  // Validate email format
+  const emailRegex = /^[a-zA-Z0-9._-]+@nitt\.edu$/;
+  if (!emailRegex.test(email)) {
+    throw new ApiError(400, "Email must be a valid @nitt.edu address");
+  }
+
+  // Check if user exists with this email and role
+  const user = await User.findOne({ email, role });
+
+  if (!user) {
+    throw new ApiError(404, "No account found with this email and role");
+  }
+
+  // Generate 6-digit OTP
+  const otp = generateOTP();
+  console.log(`🔐 Password Reset OTP for ${email}: ${otp}`); // For debugging
+
+  // Delete any existing OTP for this email
+  await OTP.deleteMany({ email });
+
+  // Store OTP with reset flag
+  await OTP.create({
+    email,
+    otp,
+    tempUserData: {
+      isPasswordReset: true,
+      role: role
+    },
+  });
+
+  // Send OTP email
+  const emailResult = await sendPasswordResetOTP(email, otp, user.name);
+
+  if (!emailResult.success) {
+    console.error("Failed to send password reset OTP email:", emailResult.error);
+    // Still allow user to proceed if they have the OTP from console
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Password reset OTP sent to ${email}. Please check your email.`,
+  });
+});
+
+/**
+ * Step 2: Verify OTP for password reset
+ */
+const verifyResetOTP = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+
+  // Validate required fields
+  if (!email || !otp) {
+    throw new ApiError(400, "Email and OTP are required");
+  }
+
+  // Find OTP record
+  const otpRecord = await OTP.findOne({ email });
+
+  if (!otpRecord) {
+    throw new ApiError(
+      400,
+      "OTP expired or not found. Please request a new OTP."
+    );
+  }
+
+  // Check if this is a password reset OTP
+  if (!otpRecord.tempUserData?.isPasswordReset) {
+    throw new ApiError(400, "Invalid OTP type");
+  }
+
+  // Verify OTP
+  if (otpRecord.otp !== otp) {
+    throw new ApiError(400, "Invalid OTP. Please try again.");
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "OTP verified successfully. You can now reset your password.",
+  });
+});
+
+/**
+ * Step 3: Reset password with verified OTP
+ */
+const resetPassword = asyncHandler(async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+
+  // Validate required fields
+  if (!email || !otp || !newPassword) {
+    throw new ApiError(400, "Email, OTP, and new password are required");
+  }
+
+  // Validate password length
+  if (newPassword.length < 6) {
+    throw new ApiError(400, "Password must be at least 6 characters long");
+  }
+
+  // Find OTP record
+  const otpRecord = await OTP.findOne({ email });
+
+  if (!otpRecord) {
+    throw new ApiError(400, "Session expired. Please start over.");
+  }
+
+  // Verify this is a password reset OTP
+  if (!otpRecord.tempUserData?.isPasswordReset) {
+    throw new ApiError(400, "Invalid session");
+  }
+
+  // Verify OTP matches
+  if (otpRecord.otp !== otp) {
+    throw new ApiError(400, "Invalid OTP");
+  }
+
+  // Find user
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Update password (will be hashed by pre-save hook)
+  user.password = newPassword;
+  await user.save();
+
+  // Delete OTP record
+  await OTP.deleteOne({ email });
+
+  res.status(200).json({
+    success: true,
+    message: "Password reset successfully. You can now login with your new password.",
+  });
+});
 
 // LOGOUT
 const logout = asyncHandler(async (req, res) => {
@@ -345,5 +498,8 @@ export {
   login,
   getCurrentUser,
   logout,
+  resetPassword,
+  forgotPassword,
+  verifyResetOTP
 };
 

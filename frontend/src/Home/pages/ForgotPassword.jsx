@@ -76,7 +76,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const result = await apiRequest('/api/auth/verify-otp', {
+    const result = await apiRequest('/api/auth/verify-reset-otp', {
       method: 'POST',
       body: JSON.stringify({
         email: formData.email,

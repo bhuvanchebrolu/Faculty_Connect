@@ -12,6 +12,9 @@ import  {
   login,
   getCurrentUser,
   logout,
+  forgotPassword,
+  verifyResetOTP,
+  resetPassword
 }  from "../controllers/auth.controller.js";
 
 
@@ -37,6 +40,11 @@ router.post("/login", login);
 router.get("/me", authenticate, getCurrentUser);
 // Logout endpoint (client-side token deletion)
 router.post("/logout", authenticate, logout);
+
+router.post("/forgot-password", forgotPassword);
+router.post("/verify-reset-otp", verifyResetOTP);
+router.post("/reset-password", resetPassword);
+
 
 
 export default router;

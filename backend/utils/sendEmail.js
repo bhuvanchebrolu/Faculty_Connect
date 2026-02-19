@@ -356,10 +356,41 @@ const sendNewApplicationEmail = async (email, professorName, projectTitle, appli
   console.log("email sent:", body);
   return sendEmail({ to: email, subject, body, html });
 };
+// ─── Password Reset OTP Email ─────────────────────────────────────────────────
+const sendPasswordResetOTP = async (email, otp, name) => {
+  const subject = "Faculty Connect — Reset Your Password";
 
+  const body = `Hi ${name},\n\nYou requested to reset your password. Your verification code is: ${otp}\n\nThis code expires in 10 minutes.\n\nIf you didn't request this, please ignore this email.\n\nBest regards,\nFaculty Connect Team`;
+
+  const html = emailShell(`
+    <p class="greeting">Hi ${name} 👋</p>
+    <p class="intro">
+      We received a request to reset the password for your <strong>Faculty Connect</strong> account.
+      Use the verification code below to proceed with resetting your password.
+    </p>
+
+    <div class="highlight-box">
+      <p style="font-size:12px;color:#92400e;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;">Password Reset Code</p>
+      <p style="font-size:42px;font-weight:700;letter-spacing:12px;color:#000;font-family:'Playfair Display',serif;">${otp}</p>
+      <p style="font-size:12px;color:#777;margin-top:10px;">⏳ Expires in <strong>10 minutes</strong></p>
+    </div>
+
+    <div class="notice">
+      <strong>🔒 Security Notice:</strong> Never share this code with anyone.
+      If you didn't request a password reset, you can safely ignore this email — your account remains secure.
+    </div>
+
+    <p style="font-size:14px;color:#444;line-height:1.7;">
+      After entering this code, you'll be able to create a new password for your account.
+    </p>
+  `);
+
+  return sendEmail({ to: email, subject, body, html });
+};
 export {
   sendEmail,
   sendOTPEmail,
   sendApplicationStatusEmail,
   sendNewApplicationEmail,
+  sendPasswordResetOTP
 };
