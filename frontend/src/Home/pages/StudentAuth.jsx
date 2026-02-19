@@ -130,7 +130,7 @@ const StudentAuth = () => {
           {/* Auth Card */}
           <div className="bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden">
             {/* Header */}
-            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+            <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
                   <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -139,7 +139,7 @@ const StudentAuth = () => {
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-white">Student Portal</h2>
-                  <p className="text-blue-100 text-sm">NIT Trichy Academic Internship System</p>
+                  <p className="text-yellow-100 text-sm">NIT Trichy Academic Internship System</p>
                 </div>
               </div>
             </div>
@@ -152,7 +152,7 @@ const StudentAuth = () => {
                 }}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${
                   activeTab === 'login'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                    ? 'text-yellow-600 border-b-2 border-yellow-600 bg-yellow-50'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -165,7 +165,7 @@ const StudentAuth = () => {
                 }}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${
                   activeTab === 'register'
-                    ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                    ? 'text-yellow-600 border-b-2 border-yellow-600 bg-yellow-50'
                     : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
@@ -196,7 +196,7 @@ const StudentAuth = () => {
                       value={loginData.email}
                       onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                     />
                     <p className="text-xs text-gray-500 mt-1.5">Use your roll number format email</p>
                   </div>
@@ -212,7 +212,7 @@ const StudentAuth = () => {
                       value={loginData.password}
                       onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                     />
                   </div>
 
@@ -222,7 +222,7 @@ const StudentAuth = () => {
                     disabled={isLoading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isLoading ? 'Signing in...' : 'Sign In'}
                   </motion.button>
@@ -249,7 +249,7 @@ const StudentAuth = () => {
                       value={registerData.name}
                       onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
                   </div>
 
@@ -262,7 +262,7 @@ const StudentAuth = () => {
                       value={registerData.email}
                       onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
                   </div>
 
@@ -275,7 +275,7 @@ const StudentAuth = () => {
                       value={registerData.rollNumber}
                       onChange={(e) => setRegisterData({ ...registerData, rollNumber: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
                   </div>
 
@@ -287,7 +287,7 @@ const StudentAuth = () => {
                         value={registerData.year}
                         onChange={(e) => setRegisterData({ ...registerData, year: e.target.value })}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                       >
                         <option value="">Select</option>
                         <option value="1">1st Year</option>
@@ -306,7 +306,7 @@ const StudentAuth = () => {
                         value={registerData.branch}
                         onChange={(e) => setRegisterData({ ...registerData, branch: e.target.value })}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                       />
                     </div>
                   </div>
@@ -320,7 +320,7 @@ const StudentAuth = () => {
                       value={registerData.password}
                       onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
                   </div>
 
@@ -333,7 +333,7 @@ const StudentAuth = () => {
                       value={registerData.confirmPassword}
                       onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
                   </div>
 
@@ -343,7 +343,7 @@ const StudentAuth = () => {
                     disabled={isLoading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isLoading ? 'Sending OTP...' : 'Send OTP'}
                   </motion.button>
@@ -362,8 +362,8 @@ const StudentAuth = () => {
                   className="px-8 py-8 space-y-6"
                 >
                   <div className="text-center mb-4">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     </div>
@@ -385,7 +385,7 @@ const StudentAuth = () => {
                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
                       required
                       maxLength="6"
-                      className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-center text-2xl tracking-widest font-mono"
+                      className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-center text-2xl tracking-widest font-mono"
                     />
                   </div>
 
@@ -395,7 +395,7 @@ const StudentAuth = () => {
                     disabled={isLoading}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     {isLoading ? 'Verifying...' : 'Verify & Register'}
                   </motion.button>
@@ -405,7 +405,7 @@ const StudentAuth = () => {
                     <button
                       type="button"
                       onClick={() => setRegisterStep(1)}
-                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                      className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
                     >
                       ← Back to Registration
                     </button>
@@ -419,7 +419,7 @@ const StudentAuth = () => {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Need help?{' '}
-              <a href="mailto:support@nitt.edu.in" className="text-blue-600 hover:underline font-medium">
+              <a href="mailto:support@nitt.edu.in" className="text-yellow-600 hover:underline font-medium">
                 Contact Support
               </a>
             </p>

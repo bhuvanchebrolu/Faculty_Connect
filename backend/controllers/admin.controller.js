@@ -3,7 +3,7 @@ import Project from "../models/Project.model.js";
 import User from "../models/User.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
-
+import { sendApplicationStatusEmail } from "../utils/sendEmail.js"
 
 
 const createUser = asyncHandler(async (req, res) => {
@@ -469,6 +469,9 @@ const updateApplicationStatus = asyncHandler(async (req, res) => {
     application.feedback = feedback;
   }
   await application.save();
+  
+  sendApplicationStatusEmail(application.applicantEmail, application.applicantName, application.project.title , status, feedback);
+  
 
   //  if (!application.emailSentToStudent) {
   //     const subject =

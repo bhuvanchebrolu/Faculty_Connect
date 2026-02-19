@@ -108,7 +108,7 @@ const createApplication = asyncHandler(async (req, res) => {
     cgpa:application.cgpa
   }
   if (!application.emailSentToProfessor) {
-    sendNewApplicationEmail(application.applicantEmail , project.createdBy.name, project.title, applicantData);
+    sendNewApplicationEmail(project.createdBy.email, project.createdBy.name, project.title, applicantData);
   }
 //   if (!application.emailSentToProfessor) {
 //     const subject = `📩 New Application – ${project.title}`;
