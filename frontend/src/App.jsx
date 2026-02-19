@@ -35,6 +35,10 @@ import AdminProfessors from './admin/pages/AdminProfessors';
 import AdminProjects from './admin/pages/AdminProjects';
 import AdminAuth from './Home/pages/AdminAuth';
 import PendingApplications from './admin/pages/PendingApplications';
+import ForgotPassword from './Home/pages/ForgotPassword';
+
+
+
 
 function App() {
   return (
@@ -89,6 +93,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/student/forgot-password"
+              element={
+                
+                  <ForgotPassword />
+                
+              }
+            />
+
 
             {/* PROFESSOR ROUTES */}
             <Route
@@ -148,6 +161,15 @@ function App() {
               }
             />
 
+             <Route
+              path="/professor/forgot-password"
+              element={
+                
+                  <ForgotPassword/>
+                
+              }
+            />
+
             {/* ADMIN ROUTES */}
             <Route
               path="/admin/dashboard"
@@ -187,6 +209,14 @@ function App() {
                 <ProtectedRoute allowedRoles={['admin']}>
                   <AdminProjects />
                 </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/admin/forgot-password"
+              element={
+                
+                  <ForgotPassword/>
+                
               }
             />
 

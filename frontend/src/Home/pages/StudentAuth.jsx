@@ -1,52 +1,52 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
-import { useMessage } from '../../contexts/MessageContext';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
+import { useMessage } from "../../contexts/MessageContext";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const StudentAuth = () => {
   const navigate = useNavigate();
   const { sendOTP, verifyOTP, login } = useAuth();
   const { success, error: showError } = useMessage();
 
-  const [activeTab, setActiveTab] = useState('login');
+  const [activeTab, setActiveTab] = useState("login");
   const [registerStep, setRegisterStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
   // Login Form State
   const [loginData, setLoginData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   // Register Form State
   const [registerData, setRegisterData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    rollNumber: '',
-    year: '',
-    branch: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    rollNumber: "",
+    year: "",
+    branch: "",
   });
 
   // OTP State
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState("");
 
   // Handle Login
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
-    const result = await login(loginData.email, loginData.password, 'student');
+    const result = await login(loginData.email, loginData.password, "student");
 
     if (result.success) {
-      success('Welcome back!', `Logged in as ${result.user.name}`);
-      navigate('/student/browse');
+      success("Welcome back!", `Logged in as ${result.user.name}`);
+      navigate("/student/browse");
     } else {
-      showError('Login Failed', result.error);
+      showError("Login Failed", result.error);
     }
 
     setIsLoading(false);
@@ -58,7 +58,7 @@ const StudentAuth = () => {
 
     // Validate passwords match
     if (registerData.password !== registerData.confirmPassword) {
-      showError('Validation Error', 'Passwords do not match');
+      showError("Validation Error", "Passwords do not match");
       return;
     }
 
@@ -74,10 +74,10 @@ const StudentAuth = () => {
     });
 
     if (result.success) {
-      success('OTP Sent!', 'Please check your email for the verification code');
+      success("OTP Sent!", "Please check your email for the verification code");
       setRegisterStep(2);
     } else {
-      showError('Registration Failed', result.error);
+      showError("Registration Failed", result.error);
     }
 
     setIsLoading(false);
@@ -91,10 +91,13 @@ const StudentAuth = () => {
     const result = await verifyOTP(registerData.email, otp);
 
     if (result.success) {
-      success('Registration Successful!', `Welcome to Faculty Connect, ${result.user.name}!`);
-      navigate('/student/browse');
+      success(
+        "Registration Successful!",
+        `Welcome to Faculty Connect, ${result.user.name}!`,
+      );
+      navigate("/student/browse");
     } else {
-      showError('Verification Failed', result.error);
+      showError("Verification Failed", result.error);
     }
 
     setIsLoading(false);
@@ -122,7 +125,12 @@ const StudentAuth = () => {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             <span className="font-medium">Back to Portal Selection</span>
           </Link>
@@ -133,13 +141,21 @@ const StudentAuth = () => {
             <div className="bg-gradient-to-r from-yellow-500 to-yellow-600 px-8 py-6">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z" />
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Student Portal</h2>
-                  <p className="text-yellow-100 text-sm">NIT Trichy Academic Internship System</p>
+                  <h2 className="text-2xl font-bold text-white">
+                    Student Portal
+                  </h2>
+                  <p className="text-yellow-100 text-sm">
+                    NIT Trichy Academic Internship System
+                  </p>
                 </div>
               </div>
             </div>
@@ -148,25 +164,25 @@ const StudentAuth = () => {
             <div className="flex border-b border-gray-200">
               <button
                 onClick={() => {
-                  setActiveTab('login');
+                  setActiveTab("login");
                 }}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${
-                  activeTab === 'login'
-                    ? 'text-yellow-600 border-b-2 border-yellow-600 bg-yellow-50'
-                    : 'text-gray-600 hover:text-gray-900'
+                  activeTab === "login"
+                    ? "text-yellow-600 border-b-2 border-yellow-600 bg-yellow-50"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Sign In
               </button>
               <button
                 onClick={() => {
-                  setActiveTab('register');
+                  setActiveTab("register");
                   setRegisterStep(1);
                 }}
                 className={`flex-1 py-4 text-center font-semibold transition-colors ${
-                  activeTab === 'register'
-                    ? 'text-yellow-600 border-b-2 border-yellow-600 bg-yellow-50'
-                    : 'text-gray-600 hover:text-gray-900'
+                  activeTab === "register"
+                    ? "text-yellow-600 border-b-2 border-yellow-600 bg-yellow-50"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 Register
@@ -175,7 +191,7 @@ const StudentAuth = () => {
 
             <AnimatePresence mode="wait">
               {/* LOGIN FORM */}
-              {activeTab === 'login' && (
+              {activeTab === "login" && (
                 <motion.form
                   key="login"
                   initial={{ opacity: 0, x: -20 }}
@@ -194,11 +210,15 @@ const StudentAuth = () => {
                       type="email"
                       placeholder="rollnumber@nitt.edu.in"
                       value={loginData.email}
-                      onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
+                      onChange={(e) =>
+                        setLoginData({ ...loginData, email: e.target.value })
+                      }
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                     />
-                    <p className="text-xs text-gray-500 mt-1.5">Use your roll number format email</p>
+                    <p className="text-xs text-gray-500 mt-1.5">
+                      Use your roll number format email
+                    </p>
                   </div>
 
                   {/* Password */}
@@ -210,7 +230,9 @@ const StudentAuth = () => {
                       type="password"
                       placeholder="Enter your password"
                       value={loginData.password}
-                      onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                      onChange={(e) =>
+                        setLoginData({ ...loginData, password: e.target.value })
+                      }
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition-all"
                     />
@@ -224,13 +246,23 @@ const StudentAuth = () => {
                     whileTap={{ scale: 0.98 }}
                     className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {isLoading ? 'Signing in...' : 'Sign In'}
+                    {isLoading ? "Signing in..." : "Sign In"}
                   </motion.button>
+                  {/* After the login button, add: */}
+                  <div className="text-center mt-4">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/student/forgot-password")}
+                      className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
+                    >
+                      Forgot Password?
+                    </button>
+                  </div>
                 </motion.form>
               )}
 
               {/* REGISTER FORM - Step 1 */}
-              {activeTab === 'register' && registerStep === 1 && (
+              {activeTab === "register" && registerStep === 1 && (
                 <motion.form
                   key="register-step1"
                   initial={{ opacity: 0, x: -20 }}
@@ -242,12 +274,19 @@ const StudentAuth = () => {
                 >
                   {/* Name */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Full Name
+                    </label>
                     <input
                       type="text"
                       placeholder="Enter your full name"
                       value={registerData.name}
-                      onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
+                      onChange={(e) =>
+                        setRegisterData({
+                          ...registerData,
+                          name: e.target.value,
+                        })
+                      }
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
@@ -255,12 +294,19 @@ const StudentAuth = () => {
 
                   {/* Email */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Student Email</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Student Email
+                    </label>
                     <input
                       type="email"
                       placeholder="rollnumber@nitt.edu.in"
                       value={registerData.email}
-                      onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                      onChange={(e) =>
+                        setRegisterData({
+                          ...registerData,
+                          email: e.target.value,
+                        })
+                      }
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
@@ -268,12 +314,19 @@ const StudentAuth = () => {
 
                   {/* Roll Number */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Roll Number</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Roll Number
+                    </label>
                     <input
                       type="text"
                       placeholder="e.g., 106121001"
                       value={registerData.rollNumber}
-                      onChange={(e) => setRegisterData({ ...registerData, rollNumber: e.target.value })}
+                      onChange={(e) =>
+                        setRegisterData({
+                          ...registerData,
+                          rollNumber: e.target.value,
+                        })
+                      }
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
@@ -282,10 +335,17 @@ const StudentAuth = () => {
                   <div className="grid grid-cols-2 gap-4">
                     {/* Year */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Year</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Year
+                      </label>
                       <select
                         value={registerData.year}
-                        onChange={(e) => setRegisterData({ ...registerData, year: e.target.value })}
+                        onChange={(e) =>
+                          setRegisterData({
+                            ...registerData,
+                            year: e.target.value,
+                          })
+                        }
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                       >
@@ -299,12 +359,19 @@ const StudentAuth = () => {
 
                     {/* Branch */}
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">Branch</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Branch
+                      </label>
                       <input
                         type="text"
                         placeholder="e.g., CSE"
                         value={registerData.branch}
-                        onChange={(e) => setRegisterData({ ...registerData, branch: e.target.value })}
+                        onChange={(e) =>
+                          setRegisterData({
+                            ...registerData,
+                            branch: e.target.value,
+                          })
+                        }
                         required
                         className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                       />
@@ -313,12 +380,19 @@ const StudentAuth = () => {
 
                   {/* Password */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Password
+                    </label>
                     <input
                       type="password"
                       placeholder="Create a password"
                       value={registerData.password}
-                      onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                      onChange={(e) =>
+                        setRegisterData({
+                          ...registerData,
+                          password: e.target.value,
+                        })
+                      }
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
@@ -326,12 +400,19 @@ const StudentAuth = () => {
 
                   {/* Confirm Password */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Confirm Password
+                    </label>
                     <input
                       type="password"
                       placeholder="Confirm your password"
                       value={registerData.confirmPassword}
-                      onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                      onChange={(e) =>
+                        setRegisterData({
+                          ...registerData,
+                          confirmPassword: e.target.value,
+                        })
+                      }
                       required
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
                     />
@@ -345,13 +426,13 @@ const StudentAuth = () => {
                     whileTap={{ scale: 0.98 }}
                     className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {isLoading ? 'Sending OTP...' : 'Send OTP'}
+                    {isLoading ? "Sending OTP..." : "Send OTP"}
                   </motion.button>
                 </motion.form>
               )}
 
               {/* REGISTER FORM - Step 2: OTP Verification */}
-              {activeTab === 'register' && registerStep === 2 && (
+              {activeTab === "register" && registerStep === 2 && (
                 <motion.form
                   key="register-step2"
                   initial={{ opacity: 0, x: -20 }}
@@ -363,13 +444,28 @@ const StudentAuth = () => {
                 >
                   <div className="text-center mb-4">
                     <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <svg
+                        className="w-8 h-8 text-yellow-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        />
                       </svg>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Verify Your Email</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                      Verify Your Email
+                    </h3>
                     <p className="text-sm text-gray-600">
-                      We sent a 6-digit code to <span className="font-semibold">{registerData.email}</span>
+                      We sent a 6-digit code to{" "}
+                      <span className="font-semibold">
+                        {registerData.email}
+                      </span>
                     </p>
                   </div>
 
@@ -382,7 +478,9 @@ const StudentAuth = () => {
                       type="text"
                       placeholder="000000"
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={(e) =>
+                        setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
+                      }
                       required
                       maxLength="6"
                       className="w-full px-4 py-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 text-center text-2xl tracking-widest font-mono"
@@ -397,7 +495,7 @@ const StudentAuth = () => {
                     whileTap={{ scale: 0.98 }}
                     className="w-full bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-4 px-6 rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
-                    {isLoading ? 'Verifying...' : 'Verify & Register'}
+                    {isLoading ? "Verifying..." : "Verify & Register"}
                   </motion.button>
 
                   {/* Resend OTP */}
@@ -418,8 +516,11 @@ const StudentAuth = () => {
           {/* Help Text */}
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Need help?{' '}
-              <a href="mailto:support@nitt.edu.in" className="text-yellow-600 hover:underline font-medium">
+              Need help?{" "}
+              <a
+                href="mailto:support@nitt.edu.in"
+                className="text-yellow-600 hover:underline font-medium"
+              >
                 Contact Support
               </a>
             </p>

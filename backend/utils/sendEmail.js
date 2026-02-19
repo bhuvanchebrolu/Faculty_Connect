@@ -295,13 +295,13 @@ const sendApplicationStatusEmail = async (email, name, projectTitle, status, fee
 
     ${feedback ? `
     <div class="notice" style="border-left-color:#facc15;background:#fffbeb;">
-      <strong>💬 Professor's Feedback:</strong><br/>
+      <strong> Professor's Feedback:</strong><br/>
       <span style="color:#333;margin-top:4px;display:block;">${feedback}</span>
     </div>` : ""}
 
     ${isApproved ? `
     <div class="notice" style="border-left-color:#16a34a;background:#f0fdf4;color:#14532d;">
-      <strong>🚀 Next Steps:</strong> Please reach out to your professor directly to discuss
+      <strong> Next Steps:</strong> Please reach out to your professor directly to discuss
       onboarding, timelines, and responsibilities.
     </div>` : `
     <p style="font-size:14px;color:#555;line-height:1.7;">
@@ -315,7 +315,7 @@ const sendApplicationStatusEmail = async (email, name, projectTitle, status, fee
 
 // ─── New Application Email (to Professor) ────────────────────────────────────
 const sendNewApplicationEmail = async (email, professorName, projectTitle, applicantData) => {
-  const subject = `📩 New Application — ${projectTitle}`;
+  const subject = `New Application — ${projectTitle}`;
 
   const body = `Hi ${professorName},\n\nA new student has applied to your project "${projectTitle}".\n\nApplicant: ${applicantData.name} (${applicantData.email})\nRoll No: ${applicantData.rollNumber} | Year: ${applicantData.year} | Branch: ${applicantData.branch} | CGPA: ${applicantData.cgpa}\n\nPlease log in to Faculty Connect to review the full application.\n\nBest regards,\nFaculty Connect Team`;
 
