@@ -504,6 +504,112 @@ const updateApplicationStatus = asyncHandler(async (req, res) => {
   });
 });
 
+const createProjectByAdmin = async (req, res) => {
+  try {
+    const {
+      professorEmail,
+      title,
+      description,
+      domain,
+      skillsRequired,
+      maxStudents,
+      deadline,
+      attachmentUrl,
+      cvRequired
+    } = req.body;
+
+    // Validate required fields
+    if (!professorEmail || !title || !description || !domain || !skillsRequired || !maxStudents || !deadline) {
+      return res.status(400).json({
+        success: false,
+        message: "All required fields must be provided"
+      });
+    }
+
+    // Check if professor exists with this email
+    const professor = await User.findOne({
+      email: professorEmail,
+      role: "professor"
+    });
+
+    if (!professor) {
+      return res.status(404).json({
+        success: false,
+        message: `No professor found with email: ${professorEmail}`
+      });
+    }
+
+    // Create project
+    const project = new Project({
+      title,
+      description,
+      domain,
+      skillsRequired,
+      maxStudents,
+      deadline,
+      attachmentUrl,
+      cvRequired: cvRequired !== undefined ? cvRequired : true,
+      createdBy: professor._id,
+      status: "open"
+    });
+
+    await project.save();
+
+    // Populate createdBy field
+    await project.populate('createdBy', 'name email department');
+
+    res.status(201).json({
+      success: true,
+      message: "Project created successfully",
+      data: project
+    });
+  } catch (error) {
+    console.error("Error creating project:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create project",
+      error: error.message
+    });
+  }
+};
+
+
+ const deleteProjectByAdmin = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+
+    // Check if project exists
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found"
+      });
+    }
+
+    // Delete all applications for this project
+    const deletedApps = await Application.deleteMany({ projectId: projectId });
+
+    // Delete the project
+    await Project.findByIdAndDelete(projectId);
+
+    res.status(200).json({
+      success: true,
+      message: `Project deleted successfully. ${deletedApps.deletedCount} applications also removed.`,
+      data: {
+        projectId,
+        deletedApplications: deletedApps.deletedCount
+      }
+    });
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete project",
+      error: error.message
+    });
+  }
+};
 // ─────────────────────────────────────────────────────────────────────────────
 // EXPORTS
 // ─────────────────────────────────────────────────────────────────────────────
@@ -524,4 +630,6 @@ export {
   getAnalytics,
   getPendingApplications,
   updateApplicationStatus,
+  createProjectByAdmin,
+  deleteProjectByAdmin
 };
