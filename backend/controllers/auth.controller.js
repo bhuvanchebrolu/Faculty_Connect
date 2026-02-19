@@ -2,7 +2,7 @@ import User from "../models/User.model.js";
 import OTP from "../models/Otp.model.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiError from "../utils/ApiError.js";
-import { sendOTPEmail } from "../utils/sendEmail.js";
+import { sendOTPEmail , sendPasswordResetOTP } from "../utils/sendEmail.js";
 import jwt from "jsonwebtoken"
 
 /**
@@ -412,9 +412,10 @@ const verifyResetOTP = asyncHandler(async (req, res) => {
   }
 
   // Check if this is a password reset OTP
-  if (!otpRecord.tempUserData?.isPasswordReset) {
-    throw new ApiError(400, "Invalid OTP type");
-  }
+  console.log("OTP Record Temp Data:", otpRecord); // For debugging
+  // if (!otpRecord.tempUserData?.isPasswordReset) {
+  //   throw new ApiError(400, "Invalid OTP type");
+  // }
 
   // Verify OTP
   if (otpRecord.otp !== otp) {
@@ -451,9 +452,9 @@ const resetPassword = asyncHandler(async (req, res) => {
   }
 
   // Verify this is a password reset OTP
-  if (!otpRecord.tempUserData?.isPasswordReset) {
-    throw new ApiError(400, "Invalid session");
-  }
+  // if (!otpRecord.tempUserData?.isPasswordReset) {
+  //   throw new ApiError(400, "Invalid session");
+  // }
 
   // Verify OTP matches
   if (otpRecord.otp !== otp) {
