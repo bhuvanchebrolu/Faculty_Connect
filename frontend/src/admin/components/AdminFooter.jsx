@@ -22,7 +22,7 @@ const AdminFooter = () => {
           <div>
             <h3 className="text-lg font-bold mb-4 text-yellow-400">SCIENT</h3>
             <p className="text-gray-300 text-sm leading-relaxed mb-2">
-              Student Council for Innovation, Entrepreneurship and Technology
+              Student Center for Innovation in Engineering and Technology
             </p>
             <p className="text-gray-400 text-xs">
               Connecting students with research opportunities
@@ -70,7 +70,7 @@ const AdminFooter = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-6 text-center">
           <p className="text-gray-300 text-sm">
-            © 2026 National Institute of Technology, Tiruchirappalli. All rights reserved.
+            © 2026 SCIEnT, All rights reserved.
           </p>
           <p className="text-gray-500 text-xs mt-1.5">
             Internal Portal - Academic Use Only

@@ -23,7 +23,7 @@ const FacultyFooter = () => {
           <div>
             <h3 className="text-lg font-semibold mb-3">SCIENT</h3>
             <p className="text-gray-300 text-sm mb-1">
-              Student Council for Innovation, Entrepreneurship and Technology
+              Student Center for Innovation in Engineering and Technology
             </p>
             <p className="text-gray-300 text-sm">
               Connecting students with research opportunities
@@ -71,7 +71,7 @@ const FacultyFooter = () => {
         {/* Bottom Bar */}
         <div className="border-t border-gray-700 mt-8 pt-6">
           <div className="text-center text-gray-400 text-sm">
-            <p>© 2026 National Institute of Technology, Tiruchirappalli. All rights reserved.</p>
+            <p>© 2026 SCIEnT, All rights reserved.</p>
             <p className="mt-1">Internal Portal - Academic Use Only</p>
           </div>
         </div>
