@@ -69,10 +69,6 @@ app.use(errorHandler);
 ===================== */
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log('=== Environment Variables Check ===');
-console.log('SENDGRID_API_KEY:', process.env.SENDGRID_API_KEY ? 'SET (length: ' + process.env.SENDGRID_API_KEY.length + ')' : 'NOT SET');
-console.log('SENDGRID_FROM_EMAIL:', process.env.SENDGRID_FROM_EMAIL);
-console.log('===================================');
-  console.log(` Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on ${PORT}`);
 });
