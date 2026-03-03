@@ -24,7 +24,7 @@ const LandingPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
-
+      {console.log("API URL:", import.meta.env.VITE_API_URL)}
       <main className="flex-grow">
         {/* Hero Section */}
         <motion.div
