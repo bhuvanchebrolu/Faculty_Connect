@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // API Base URL
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const API_URL = import.meta.env.VITE_API_URL || 'http://backend:5000';
 
   // Initialize auth state from localStorage
   useEffect(() => {
